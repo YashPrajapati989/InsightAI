@@ -1,23 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>InsightAI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
+
 <body>
 
-    <h1>InsightAI</h1>
+<div class="home-container">
 
-    <h2>Upload Dataset</h2>
+    <!-- Hero Section -->
 
-    <form action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="hero">
 
-        <input type="file" name="file" required>
+        <h1>📊 InsightAI</h1>
 
-        <button type="submit">
-            Analyze Dataset
-        </button>
+        <p>
+            AI-Powered Data Cleaning, Dashboard Recommendation
+            and Storytelling Platform
+        </p>
 
-    </form>
+    </div>
+
+    <!-- Upload Card -->
+
+    <div class="upload-card">
+
+        <h2>Upload Your Dataset</h2>
+
+        <p>
+            Upload a CSV or Excel file and let InsightAI analyze your
+            dataset like a professional data analyst.
+        </p>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+
+            <div class="file-upload-container">
+
+                <input
+                    type="file"
+                    id="dataset-file"
+                    name="file"
+                    accept=".csv,.xlsx"
+                    required
+                >
+
+                <label for="dataset-file" class="custom-file-btn">
+
+                    <span class="upload-icon">📁</span>
+
+                    <span id="selected-file">
+                        Choose CSV or Excel File
+                    </span>
+
+                </label>
+
+                <small>
+                    Supported formats: CSV (.csv) & Excel (.xlsx)
+                </small>
+
+            </div>
+
+            <button type="submit" class="analyze-btn">
+
+                🚀 Analyze Dataset
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Features -->
+
+    <div class="features">
+
+        <div class="feature-box">
+
+            🧹
+
+            <h3>Clean Data</h3>
+
+            <p>
+                Automatically detect missing values,
+                duplicates and data quality issues.
+            </p>
+
+        </div>
+
+        <div class="feature-box">
+
+            📊
+
+            <h3>Dashboard Ideas</h3>
+
+            <p>
+                AI-powered Power BI and Tableau dashboard
+                recommendations.
+            </p>
+
+        </div>
+
+        <div class="feature-box">
+
+            📖
+
+            <h3>Storytelling</h3>
+
+            <p>
+                Generate business insights and executive
+                summaries automatically.
+            </p>
+
+        </div>
+
+        <div class="feature-box">
+
+            💬
+
+            <h3>Chat with Data</h3>
+
+            <p>
+                Ask questions about your data using
+                natural language.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const fileInput = document.getElementById("dataset-file");
+const fileText = document.getElementById("selected-file");
+
+fileInput.addEventListener("change", function () {
+
+    if (this.files.length > 0) {
+
+        fileText.textContent = this.files[0].name;
+
+    } else {
+
+        fileText.textContent = "Choose CSV or Excel File";
+
+    }
+
+});
+
+</script>
 
 </body>
+
 </html>
