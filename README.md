@@ -15,3 +15,6 @@ A data analysis and reporting application.
 
 To get started with this project, clone the repository and follow the setup instructions.
 
+
+
+https://chatgpt.com/share/6a2e8302-6f14-83e8-9019-8c6ad6646915
