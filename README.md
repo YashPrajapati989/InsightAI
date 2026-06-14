@@ -4,21 +4,14 @@ AI-Powered Data Cleaning, Dashboard Recommendation and Data Storytelling Platfor
 
 ## Features
 
-- Upload CSV/Excel files
-- Detect missing values
-- Detect duplicate records
-- Detect data type issues
-- Clean datasets automatically
-- Generate data quality reports
-- Recommend dashboard templates
-- Generate business insights
-- Data storytelling
+- `cleaned_files/` - Processed data files
+- `reports/` - Generated reports
+- `static/` - Static assets
+- `templates/` - HTML templates
+- `uploads/` - User uploaded files
+- `utils/` - Utility functions
 
-## Tech Stack
+## Getting Started
 
-- Python
-- Flask
-- Pandas
-- HTML/CSS/JavaScript
-- SQLite
-- Plotly
+To get started with this project, clone the repository and follow the setup instructions.
+
