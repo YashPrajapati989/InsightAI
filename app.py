@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from utils.analyzer import DataProfiler
 import pandas as pd
 import os
 
@@ -33,6 +34,7 @@ def upload():
 
     file.save(filepath)
 
+    # Read dataset
     if file.filename.endswith(".csv"):
         df = pd.read_csv(filepath, sep=None, engine="python")
 
@@ -42,21 +44,21 @@ def upload():
     else:
         return "Unsupported file format"
 
-    rows = df.shape[0]
-    cols = df.shape[1]
+    # Convert blank cells to NaN
+    df = df.replace(r'^\s*$', pd.NA, regex=True)
 
-    missing_values = df.isnull().sum().sum()
+    # Profile dataset
+    profiler = DataProfiler(df)
 
-    duplicate_rows = df.duplicated().sum()
+    report = profiler.profile()
 
+    # Render result page
     return render_template(
         "result.html",
-        rows=rows,
-        cols=cols,
-        missing_values=missing_values,
-        duplicate_rows=duplicate_rows
+        report=report
     )
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+

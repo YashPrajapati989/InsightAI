@@ -1,21 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Dataset Report</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightAI - Dataset Report</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
-    <h1>Dataset Summary</h1>
+    <div class="container">
 
-    <p><strong>Rows:</strong> {{ rows }}</p>
+        <header class="header">
+            <h1>📊 InsightAI</h1>
+            <p>AI-Powered Data Analyst Assistant</p>
+        </header>
 
-    <p><strong>Columns:</strong> {{ cols }}</p>
+        <section class="card">
 
-    <p><strong>Missing Values:</strong> {{ missing_values }}</p>
+            <h2>Dataset Summary</h2>
 
-    <p><strong>Duplicate Rows:</strong> {{ duplicate_rows }}</p>
+            <div class="stats-grid">
 
-    <a href="/">Upload Another File</a>
+                <div class="stat-card">
+                    <h3>{{ report.rows }}</h3>
+                    <p>Rows</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ report.columns }}</h3>
+                    <p>Columns</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ report.missing_values }}</h3>
+                    <p>Missing Values</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ report.duplicate_rows }}</h3>
+                    <p>Duplicate Rows</p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <h2>📋 Dataset Columns</h2>
+
+            <ul class="column-list">
+
+                {% for col in report.column_names %}
+
+                <li>{{ col }}</li>
+
+                {% endfor %}
+
+            </ul>
+
+        </section>
+
+        <section class="card">
+
+            <h2>⚠ Issues Detected</h2>
+
+            <ul class="issue-list">
+
+                {% if report.missing_values > 0 %}
+                <li>❌ {{ report.missing_values }} missing value(s) found.</li>
+                {% endif %}
+
+                {% if report.duplicate_rows > 0 %}
+                <li>⚠ {{ report.duplicate_rows }} duplicate row(s) detected.</li>
+                {% endif %}
+
+                {% if report.missing_values == 0 and report.duplicate_rows == 0 %}
+                <li>✅ No major data quality issues detected.</li>
+                {% endif %}
+
+            </ul>
+
+        </section>
+
+        <section class="card">
+
+            <h2>🚀 Upcoming Features</h2>
+
+            <div class="feature-grid">
+
+                <div class="feature-card">
+                    🧹
+                    <h3>Clean Data</h3>
+                </div>
+
+                <div class="feature-card">
+                    📊
+                    <h3>Dashboard Suggestions</h3>
+                </div>
+
+                <div class="feature-card">
+                    📖
+                    <h3>Storytelling</h3>
+                </div>
+
+                <div class="feature-card">
+                    💬
+                    <h3>Chat with Data</h3>
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="button-container">
+
+            <a href="/" class="btn">
+                ⬅ Upload Another Dataset
+            </a>
+
+        </div>
+
+    </div>
 
 </body>
+
 </html>
+
