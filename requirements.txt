@@ -4,3 +4,8 @@ numpy
 openpyxl
 xlsxwriter
 plotly
+Flask-WTF
+Flask-Limiter
+Flask-Talisman
+python-dotenv
+werkzeug
