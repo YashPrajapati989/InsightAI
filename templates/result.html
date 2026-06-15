@@ -172,6 +172,33 @@
         </section>
 
         <!-- ============================
+             AI Data Cleaning Recommendations
+        ============================ -->
+        <section class="card">
+            <h2>🧹 AI Data Cleaning Recommendations</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.95rem;">
+                InsightAI has scanned your dataset and recommends the following automatic cleaning operations:
+            </p>
+            <ul style="list-style-type: none; padding-left: 0; margin-bottom: 25px;">
+                {% for rec in recommendations %}
+                    <li style="padding: 12px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 10px; font-size: 0.95rem; color: #333;">
+                        <span style="color: #2e7d32; font-weight: bold;">✓</span>
+                        <span>{{ rec }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <form action="/clean" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="file_id" value="{{ file_id }}"/>
+                <input type="hidden" name="original_score" value="{{ report.quality_score }}"/>
+                <button type="submit" class="btn" style="background: linear-gradient(135deg, #6200ea 0%, #3700b3 100%); color: white; border: none; padding: 14px 28px; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 4px; transition: transform 0.2s;">
+                    🧹 Apply AI Data Cleaning
+                </button>
+            </form>
+        </section>
+
+        <!-- ============================
              Future Features
         ============================ -->
         <section class="card">
