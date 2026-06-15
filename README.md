@@ -2,53 +2,123 @@
 
 > **AI-Powered Data Analyst Assistant**
 
-InsightAI is a web application that helps users clean, analyze, and understand datasets with AI-powered recommendations. Simply upload a CSV or Excel file and get instant data profiling, quality analysis, dashboard suggestions, and business storytelling.
+InsightAI is an AI-powered web application that helps users analyze datasets, evaluate data quality, and prepare data for visualization and business intelligence. Simply upload a CSV or Excel file to receive an interactive profiling report with quality metrics, column analysis, and actionable insights.
 
 ---
 
-## 🚀 Features
+# 🚀 Features
 
-### ✅ Current Features
+## ✅ Current Features
 
-- 📂 Upload CSV & Excel datasets
-- 📊 Dataset profiling
-- 📈 Row and column count
-- ⚠️ Missing value detection
-- 🔄 Duplicate row detection
-- 📋 Column listing
-- 🎨 Modern responsive UI
+### 📂 Dataset Upload
+
+* Upload CSV (`.csv`) files
+* Upload Excel (`.xlsx`) files
+* Automatic file validation
+
+### 📊 Advanced Dataset Profiling
+
+* Total Rows
+* Total Columns
+* Dataset Preview (First 10 Rows)
+* Missing Values Count
+* Duplicate Rows Count
+
+### ⭐ Data Quality Analysis
+
+* Data Quality Score (0–100)
+* Visual Progress Indicator
+* Dataset Health Assessment
+
+### 📋 Column Analysis
+
+For each column:
+
+* Data Type
+* Missing Values
+* Unique Values
+
+For numeric columns:
+
+* Minimum Value
+* Maximum Value
+* Mean Value
+
+### ⚠️ Automatic Issue Detection
+
+* Missing values detection
+* Duplicate record detection
+* High-cardinality column detection
+* Data quality warnings
+
+### 🎨 Modern Responsive Dashboard
+
+* Professional analytics dashboard
+* Responsive design
+* Statistics cards
+* Dataset preview table
+* Column analysis cards
 
 ---
 
-## 🔜 Upcoming Features
+# 🛣️ Roadmap
 
-- 🧹 One-click Data Cleaning
-- 📥 Download Cleaned Dataset
-- 📊 Dashboard Recommendations
-- 📖 AI Business Storytelling
-- 📈 Data Quality Score
-- 💬 Chat with Your Data
-- 📑 Automated Report Generation
-- 🤖 AI-powered Insights
+## ✅ Phase 1 — Completed
+
+* CSV & Excel Upload
+* Basic Dataset Profiling
+* Modern Landing Page
+
+## ✅ Phase 2 — Completed
+
+* Dataset Preview
+* Data Quality Score
+* Column Analysis
+* Issue Detection Dashboard
+* Responsive Analytics UI
+
+## 🔜 Phase 3 — In Progress
+
+* One-Click Data Cleaning
+* Explain Every Cleaning Step
+* Download Cleaned Dataset
+
+## 🔜 Phase 4
+
+* AI Dashboard Recommendations
+* Power BI Dashboard Suggestions
+* Tableau Visualization Templates
+
+## 🔜 Phase 5
+
+* AI Business Storytelling
+* Executive Summary Generation
+* Automated Business Insights
+
+## 🔜 Phase 6
+
+* Chat with Your Data
+* Natural Language Querying
+* AI Data Assistant
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-| Technology | Usage |
-|------------|-----------------------------|
-| Python | Backend |
-| Flask | Web Framework |
-| Pandas | Data Analysis |
-| HTML5 | Frontend |
-| CSS3 | Styling |
-| JavaScript | UI Interaction |
+| Technology | Purpose                     |
+| ---------- | --------------------------- |
+| Python     | Backend Development         |
+| Flask      | Web Framework               |
+| Pandas     | Data Processing & Analysis  |
+| HTML5      | Frontend Structure          |
+| CSS3       | Styling & Responsive Design |
+| JavaScript | Interactive UI              |
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
+```text
 InsightAI/
 │
 ├── app.py
@@ -74,51 +144,46 @@ InsightAI/
 
 ---
 
-## ⚙️ Installation
+# ⚙️ Installation
 
-### Clone the repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/InsightAI.git
-```
+## Clone the repository
 
 ```bash
+git clone https://github.com/YashPrajapati989/InsightAI.git
 cd InsightAI
 ```
 
-### Create virtual environment (optional)
+## Create a virtual environment (Optional)
 
 ```bash
 python -m venv venv
 ```
 
-### Activate virtual environment
-
-Windows:
+### Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-Linux / macOS:
+### Linux / macOS
 
 ```bash
 source venv/bin/activate
 ```
 
-### Install dependencies
+## Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run the application
+## Run the application
 
 ```bash
 python app.py
 ```
 
-Open your browser and visit:
+Visit:
 
 ```
 http://127.0.0.1:5000
@@ -126,46 +191,79 @@ http://127.0.0.1:5000
 
 ---
 
-## 📷 Application Workflow
+# 📈 Current Workflow
 
+```text
+Upload CSV / Excel
+        │
+        ▼
+Read Dataset
+        │
+        ▼
+Generate Dataset Profile
+        │
+        ▼
+Calculate Data Quality Score
+        │
+        ▼
+Preview First 10 Rows
+        │
+        ▼
+Analyze Columns
+        │
+        ▼
+Detect Data Issues
+        │
+        ▼
+Display Analytics Dashboard
 ```
+
+---
+
+# 🎯 Future Workflow
+
+```text
 Upload Dataset
         │
         ▼
-Dataset Profiling
+📊 Dataset Profiling
         │
         ▼
-Detect Missing Values
+⭐ Data Quality Analysis
         │
         ▼
-Detect Duplicate Records
+🧹 AI Data Cleaning
         │
         ▼
-Generate Data Summary
+📊 Dashboard Recommendations
         │
         ▼
-(Upcoming)
-AI Cleaning
-Dashboard Suggestions
-Business Storytelling
+📖 Business Storytelling
+        │
+        ▼
+💬 Chat with Your Data
+        │
+        ▼
+📥 Export Reports & Cleaned Dataset
 ```
 
 ---
 
-## 🎯 Vision
+# 🎯 Vision
 
-InsightAI aims to become an **AI Data Analyst Assistant** capable of:
+InsightAI aims to become a complete **AI Data Analyst Assistant** capable of:
 
-- Cleaning messy datasets
-- Explaining every cleaning step
-- Recommending dashboard layouts
-- Generating business insights
-- Creating executive summaries
-- Answering questions about uploaded data
+* Profiling datasets
+* Cleaning messy data automatically
+* Explaining every transformation
+* Recommending dashboards
+* Generating business insights
+* Creating executive reports
+* Answering natural language questions about uploaded data
 
 ---
 
-## 🤝 Contributing
+# 🤝 Contributing
 
 Contributions, feature requests, and suggestions are welcome.
 
@@ -177,14 +275,14 @@ Contributions, feature requests, and suggestions are welcome.
 
 ---
 
-## 📄 License
+# 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Yash Prajapati**
 
-If you found this project helpful, don't forget to ⭐ star the repository!
+⭐ If you like this project, consider giving it a star on GitHub!
