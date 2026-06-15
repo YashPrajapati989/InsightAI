@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InsightAI - Dashboard Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        /* ── Theme Preview Specific Styles ───────────────────────────── */
+        .theme-hero {
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--hero-bg);
+            z-index: 0;
+        }
+        .theme-hero > * { position: relative; z-index: 1; }
+
+        .spec-section { margin-bottom: 28px; }
+        .spec-section h3 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+        }
+        .spec-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .spec-key {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            flex: 1;
+            min-width: 0;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .spec-val {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: right;
+            max-width: 140px;
+            word-break: break-all;
+        }
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+        .palette-strip {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .palette-chip {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            cursor: default;
+            position: relative;
+        }
+        .palette-chip:hover::after {
+            content: attr(data-color);
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .bool-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .bool-true  { background: #dcfce7; color: #15803d; }
+        .bool-false { background: #fee2e2; color: #b91c1c; }
+
+        /* ── Dashboard Live Preview ───────────────────────────────────── */
+        .live-preview {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+        }
+        .lp-header {
+            padding: 20px 28px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .lp-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+            padding: 20px 28px;
+        }
+        .lp-kpi-card {
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .lp-charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 0 28px 20px;
+        }
+        .lp-chart-box {
+            border-radius: 12px;
+            padding: 16px 18px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .lp-chart-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.7;
+        }
+        .lp-bar-mini {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 36px;
+            margin-top: 10px;
+        }
+        .lp-bar { border-radius: 3px 3px 0 0; flex: 1; }
+        .lp-line-mini {
+            margin-top: 10px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+        }
+        .lp-line-svg { width: 100%; height: 36px; }
+    </style>
+</head>
+<body>
+
+{% set t = recommendations.theme %}
+
+<div class="container">
+
+    <header class="header">
+        <h1>📊 AI Dashboard Recommendations</h1>
+        <p>InsightAI analyzed your dataset and designed a complete dashboard template</p>
+    </header>
+
+    <!-- ================================================================
+         SECTION 1: RECOMMENDED KPIs
+    ================================================================ -->
+    <section class="card">
+        <h2>⭐ Recommended KPI Cards</h2>
+        <p style="margin-bottom:20px; color:#666; font-size:0.9rem;">Core metrics to surface at the top of your dashboard.</p>
+        <div class="stats-grid">
+            {% for kpi in recommendations.kpis %}
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b, #312e81); border:1px solid #4338ca; text-align:left; padding:20px;">
+                <p style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:#c7d2fe; margin-bottom:6px;">{{ kpi.name }}</p>
+                <h3 style="font-size:1.7rem; font-weight:800; color:#fff; margin-bottom:8px;">{{ kpi.value }}</h3>
+                <small style="font-size:0.73rem; color:#a5b4fc; line-height:1.3;">{{ kpi.reason }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ================================================================
+         SECTION 2: LIVE THEME PREVIEW
+    ================================================================ -->
+    <section class="card">
+        <h2>🎨 Dashboard Theme — <em style="color:#4f46e5;">{{ t.theme_name }}</em></h2>
+        <p style="margin-bottom:20px; color:#666; font-size:0.9rem;">
+            Domain detected: <strong>{{ t.domain }}</strong>. Below is a live preview of how your dashboard will look.
+        </p>
+
+        <!-- Live Preview -->
+        <div class="live-preview" style="background:{{ t.canvas.page_background }};">
+            <!-- Header -->
+            <div class="lp-header" style="background:{{ t.canvas.background_color }};">
+                <div style="font-family:{{ t.typography.font_family }};
+                            font-size:{{ t.typography.dashboard_title_font_size }};
+                            font-weight:700;
+                            color:{{ t.typography.dashboard_title_color }};">
+                    {{ t.dashboard_title.text }}
+                </div>
+                <div style="font-size:13px; color:{{ t.dashboard_title.subtitle_color }}; margin-top:4px;">
+                    {{ t.dashboard_title.subtitle_text }}
+                </div>
+            </div>
+
+            <!-- KPI Row Preview -->
+            <div class="lp-kpi-row" style="background:{{ t.canvas.page_background }};">
+                {% for kpi in recommendations.kpis %}
+                <div class="lp-kpi-card"
+                     style="background:{{ t.kpi_card.background }};
+                            border:{{ t.kpi_card.border }};
+                            border-left:{{ t.kpi_card.accent_bar_color }} solid 4px;
+                            box-shadow:{{ t.kpi_card.box_shadow }};
+                            border-radius:{{ t.kpi_card.border_radius }};">
+                    <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:{{ t.typography.kpi_label_color }}; margin-bottom:4px;">{{ kpi.name }}</div>
+                    <div style="font-size:22px; font-weight:800; color:{{ t.typography.kpi_value_color }}; font-family:{{ t.typography.font_family }};">{{ kpi.value }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Chart Row Preview -->
+            <div class="lp-charts-row" style="background:{{ t.canvas.page_background }};">
+                {% for chart in recommendations.charts[:2] %}
+                <div class="lp-chart-box"
+                     style="background:{{ t.chart_panel.background }};
+                            border:{{ t.chart_panel.border }};
+                            box-shadow:{{ t.chart_panel.box_shadow }};
+                            border-radius:{{ t.chart_panel.border_radius }};">
+                    <div class="lp-chart-label" style="color:{{ t.typography.kpi_label_color }};">
+                        {{ chart.chart_name }} — {{ chart.x_axis }} vs {{ chart.y_axis }}
+                    </div>
+                    {% if chart.chart_name == "Bar Chart" or chart.chart_name == "Stacked Bar Chart" %}
+                    <div class="lp-bar-mini">
+                        {% for col in t.chart_colors.primary_palette[:6] %}
+                        <div class="lp-bar" style="background:{{ col }}; height:{{ [20,35,28,15,32,24][loop.index0] }}px;"></div>
+                        {% endfor %}
+                    </div>
+                    {% elif chart.chart_name == "Line Chart" %}
+                    <div class="lp-line-mini">
+                        <svg class="lp-line-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                            <polyline points="0,35 30,20 60,28 90,10 120,18 150,5 200,12"
+                                      fill="none" stroke="{{ t.chart_colors.line_chart_color }}" stroke-width="2.5"/>
+                        </svg>
+                    </div>
+                    {% else %}
+                    <div class="lp-bar-mini">
+                        {% for col in t.chart_colors.pie_chart_colors[:4] %}
+                        <div class="lp-bar" style="background:{{ col }}; height:{{ [28,20,35,15][loop.index0] }}px; border-radius:50% 50% 0 0;"></div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         SECTION 3: COMPLETE DESIGN SPECIFICATION
+    ================================================================ -->
+    <section class="card">
+        <h2>🎨 Complete Design Specification</h2>
+        <p style="margin-bottom:24px; color:#666; font-size:0.9rem;">
+            Every design token required to build this dashboard in Power BI, Tableau, Figma, or code.
+        </p>
+
+        <!-- ── Canvas ── -->
+        <div class="spec-section">
+            <h3>🖼️ Canvas &amp; Layout</h3>
+            <div class="spec-grid">
+                {% for key, val in t.canvas.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Typography ── -->
+        <div class="spec-section">
+            <h3>🔤 Typography</h3>
+            <div class="spec-grid">
+                {% for key, val in t.typography.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── KPI Card ── -->
+        <div class="spec-section">
+            <h3>📦 KPI Card Style</h3>
+            <div class="spec-grid">
+                {% for key, val in t.kpi_card.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Chart Panel ── -->
+        <div class="spec-section">
+            <h3>📊 Chart Panel Style</h3>
+            <div class="spec-grid">
+                {% for key, val in t.chart_panel.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Chart Color Palette ── -->
+        <div class="spec-section">
+            <h3>🎨 Chart Color Palette</h3>
+            <div style="margin-bottom:16px;">
+                <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PRIMARY PALETTE</p>
+                <div class="palette-strip">
+                    {% for color in t.chart_colors.primary_palette %}
+                    <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if t.chart_colors.pie_chart_colors is defined %}
+            <div style="margin-bottom:16px;">
+                <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PIE / DONUT CHART PALETTE</p>
+                <div class="palette-strip">
+                    {% for color in t.chart_colors.pie_chart_colors %}
+                    <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="spec-grid" style="margin-top:12px;">
+                {% for key, val in t.chart_colors.items() %}
+                {% if val is string %}
+                <div class="spec-row">
+                    {% if val.startswith('#') or val.startswith('rgba') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Positive / Negative Colors ── -->
+        <div class="spec-section">
+            <h3>✅ Positive &amp; Negative Indicators</h3>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 18px;">
+                    <div class="color-swatch" style="background:{{ t.chart_colors.positive_color }}; width:26px; height:26px;"></div>
+                    <div>
+                        <div style="font-size:11px; color:#166534; font-weight:700;">POSITIVE / GROWTH</div>
+                        <div style="font-size:14px; font-weight:800; color:#15803d;">{{ t.chart_colors.positive_color }}</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 18px;">
+                    <div class="color-swatch" style="background:{{ t.chart_colors.negative_color }}; width:26px; height:26px;"></div>
+                    <div>
+                        <div style="font-size:11px; color:#991b1b; font-weight:700;">NEGATIVE / DECLINE</div>
+                        <div style="font-size:14px; font-weight:800; color:#b91c1c;">{{ t.chart_colors.negative_color }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Axes & Gridlines ── -->
+        <div class="spec-section">
+            <h3>📐 Axes &amp; Gridlines</h3>
+            <div class="spec-grid">
+                {% for key, val in t.axes_and_gridlines.items() %}
+                <div class="spec-row">
+                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% elif val is boolean %}
+                        <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Data Labels ── -->
+        <div class="spec-section">
+            <h3>🏷️ Data Labels</h3>
+            <div class="spec-grid">
+                {% for key, val in t.data_labels.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% elif val is boolean %}
+                        <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Tooltip ── -->
+        <div class="spec-section">
+            <h3>💬 Tooltip</h3>
+            <div class="spec-grid">
+                {% for key, val in t.tooltip.items() %}
+                <div class="spec-row">
+                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Legend ── -->
+        <div class="spec-section">
+            <h3>📌 Legend</h3>
+            <div class="spec-grid">
+                {% for key, val in t.legend.items() %}
+                <div class="spec-row">
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Slicer / Filter ── -->
+        <div class="spec-section">
+            <h3>🔘 Slicer / Filter Pill</h3>
+            <div style="margin-bottom:14px; display:flex; gap:8px; flex-wrap:wrap;">
+                <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">All Regions</span>
+                <span style="background:{{ t.slicer.active_background }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.active_color }}; padding:6px 14px; font-size:12px; font-weight:600;">North</span>
+                <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">South</span>
+            </div>
+            <div class="spec-grid">
+                {% for key, val in t.slicer.items() %}
+                <div class="spec-row">
+                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Table ── -->
+        <div class="spec-section">
+            <h3>📋 Table / Data Grid</h3>
+            <!-- Mini Table Preview -->
+            <div style="margin-bottom:16px; border-radius:10px; overflow:hidden; border:{{ t.table.border }};">
+                <div style="background:{{ t.table.header_background }}; padding:10px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column A</span>
+                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column B</span>
+                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column C</span>
+                </div>
+                {% for i in range(3) %}
+                <div style="background:{{ t.table.alternate_row_background if i % 2 else t.table.row_background }}; padding:9px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; border-top:{{ t.table.border }};">
+                    <span style="font-size:11px; color:{{ t.table.color }};">Sample {{ i+1 }}</span>
+                    <span style="font-size:11px; color:{{ t.table.color }};">Value {{ i*10 }}</span>
+                    <span style="font-size:11px; color:{{ t.chart_colors.positive_color }}; font-weight:700;">+{{ i*5 }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="spec-grid">
+                {% for key, val in t.table.items() %}
+                <div class="spec-row">
+                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ── Dashboard Title Block ── -->
+        <div class="spec-section">
+            <h3>🏷️ Dashboard Title Block</h3>
+            <div class="spec-grid">
+                {% for key, val in t.dashboard_title.items() %}
+                <div class="spec-row">
+                    {% if val is string and val.startswith('#') %}
+                        <div class="color-swatch" style="background:{{ val }};"></div>
+                    {% endif %}
+                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                    <span class="spec-val">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ================================================================
+         SECTION 4: LAYOUT WIREFRAME
+    ================================================================ -->
+    <section class="card">
+        <h2>🏗️ Dashboard Layout Wireframe</h2>
+        <p style="margin-bottom:20px; color:#666; font-size:0.9rem;">Recommended grid arrangement for Power BI, Tableau, or your web dashboard.</p>
+        <div style="background:#f8fafc; padding:24px; border-radius:12px; border:1px solid #e2e8f0;">
+            <div style="text-align:center; border:2px dashed #94a3b8; padding:14px; border-radius:8px; background:#fff; margin-bottom:16px;">
+                <div style="font-weight:700; color:#64748b; font-size:12px; margin-bottom:6px;">TOP — KPI Cards</div>
+                <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+                    {% for kpi in recommendations.layout.top %}
+                    <span style="background:#e2e8f0; color:#334155; padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600;">[ {{ kpi }} ]</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                <div style="border:2px dashed #94a3b8; padding:20px; border-radius:8px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; color:#64748b; font-size:11px; margin-bottom:6px;">MIDDLE LEFT — Primary Trend</div>
+                    <div style="color:#4f46e5; font-size:12px; font-weight:700;">{{ recommendations.layout.middle_left }}</div>
+                </div>
+                <div style="border:2px dashed #94a3b8; padding:20px; border-radius:8px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; color:#64748b; font-size:11px; margin-bottom:6px;">MIDDLE RIGHT — Category Breakdown</div>
+                    <div style="color:#4f46e5; font-size:12px; font-weight:700;">{{ recommendations.layout.middle_right }}</div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div style="border:2px dashed #94a3b8; padding:20px; border-radius:8px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; color:#64748b; font-size:11px; margin-bottom:6px;">BOTTOM LEFT — Correlation / Region</div>
+                    <div style="color:#4f46e5; font-size:12px; font-weight:700;">{{ recommendations.layout.bottom_left }}</div>
+                </div>
+                <div style="border:2px dashed #94a3b8; padding:20px; border-radius:8px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; color:#64748b; font-size:11px; margin-bottom:6px;">BOTTOM RIGHT — Details / Leaderboard</div>
+                    <div style="color:#4f46e5; font-size:12px; font-weight:700;">{{ recommendations.layout.bottom_right }}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         SECTION 5: CHART RECOMMENDATIONS
+    ================================================================ -->
+    <section class="card">
+        <h2>📈 Recommended Visualizations</h2>
+        <div class="column-analysis-grid">
+            {% for chart in recommendations.charts %}
+            <div class="analysis-card" style="border-left:5px solid {{ recommendations.theme.chart_colors.primary_palette[loop.index0 % recommendations.theme.chart_colors.primary_palette|length] }};">
+                <h3 class="analysis-title" style="font-weight:700; color:#1e293b;">📊 {{ chart.chart_name }}</h3>
+                <div class="analysis-meta" style="font-size:0.83rem; margin-bottom:10px;">
+                    <div><span class="meta-label">X-Axis</span>: <span class="meta-value">{{ chart.x_axis }}</span></div>
+                    <div><span class="meta-label">Y-Axis</span>: <span class="meta-value">{{ chart.y_axis }}</span></div>
+                </div>
+                <p style="font-size:0.83rem; color:#475569; border-top:1px solid #f1f5f9; padding-top:8px; line-height:1.4;">{{ chart.reason }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ================================================================
+         SECTION 6: INSIGHTS & QUESTIONS
+    ================================================================ -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:20px; margin-bottom:30px;">
+        <section class="card" style="margin-bottom:0;">
+            <h2>💡 AI Visualization Insights</h2>
+            <ul class="column-list">
+                {% for insight in recommendations.insights %}
+                <li style="border-left-color:#8b5cf6; background:#faf5ff; font-size:0.88rem; line-height:1.4; color:#5b21b6;">{{ insight }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="card" style="margin-bottom:0;">
+            <h2>❓ Key Business Questions</h2>
+            <ul class="column-list">
+                {% for question in recommendations.questions %}
+                <li style="border-left-color:#3b82f6; background:#eff6ff; font-size:0.88rem; line-height:1.4; color:#1e3a8a;">
+                    <strong>Q:</strong> {{ question }}
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    <!-- Back Button -->
+    <div class="button-container" style="margin-bottom:50px;">
+        <a href="/" class="btn" style="background:#374151;">⬅ Upload / Load Another Dataset</a>
+    </div>
+
+</div>
+</body>
+</html>

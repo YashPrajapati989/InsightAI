@@ -5,6 +5,7 @@ from services.file_service import save_upload_securely, cleanup_file
 from services.dataset_service import load_dataset, DatasetError
 from utils.analyzer import DataProfiler
 from utils.cleaner import DataCleaner
+from utils.dashboard_recommender import DashboardRecommender
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -123,3 +124,39 @@ def download(filename):
         return redirect(url_for('main.home'))
         
     return send_from_directory(cleaned_dir, filename, as_attachment=True)
+
+@upload_bp.route("/recommendations/<file_id>", methods=["GET"])
+def recommendations(file_id):
+    """Analyze the dataset and recommend visualizations and layout for a dashboard."""
+    file_id = secure_filename(file_id)
+    
+    # Check uploads directory (raw dataset)
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_id)
+    
+    # Check cleaned_files directory (cleaned dataset)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(current_app.config['CLEANED_FOLDER'], file_id)
+        
+    if not os.path.exists(filepath):
+        flash("The dataset file could not be found or has expired. Please upload again.", "error")
+        return redirect(url_for('main.home'))
+        
+    try:
+        # Load dataset
+        df = load_dataset(filepath)
+        
+        # Analyze dataset using DashboardRecommender
+        recommender = DashboardRecommender(df)
+        rec_data = recommender.recommend()
+        
+        current_app.logger.info(f"Generated dashboard recommendations for file: {file_id}")
+        
+        return render_template(
+            "recommendations.html",
+            recommendations=rec_data,
+            file_id=file_id
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error generating dashboard recommendations for {file_id}: {e}")
+        flash("An error occurred while analyzing the dataset for recommendations.", "error")
+        return redirect(url_for('main.home'))

@@ -10,6 +10,15 @@ InsightAI is an AI-powered web application that helps users analyze datasets, ev
 
 ## ✅ Current Features
 
+### 📊 AI Dashboard Recommendations (Phase 4)
+
+* Automatic column type analysis (Date, Numeric, Categorical, Boolean, Identifier)
+* Context-aware KPI suggestions with business logic reasoning
+* Chart recommendations matched to column mappings (Line, Bar, Pie, Scatter, Maps, etc.)
+* Complete grid dashboard layout wireframe recommendations
+* 5+ auto-generated business questions tailored to the dataset
+* Structural metadata visualization insights
+
 ### 📂 Dataset Upload
 
 * Upload CSV (`.csv`) files
@@ -94,7 +103,7 @@ For numeric columns:
 * Explain Every Cleaning Step
 * Download Cleaned Dataset
 
-## 🔜 Phase 4
+## ✅ Phase 4 — Completed
 
 * AI Dashboard Recommendations
 * Power BI Dashboard Suggestions
@@ -159,6 +168,7 @@ InsightAI/
 │   ├── index.html
 │   ├── result.html
 │   ├── cleaned_result.html
+│   ├── recommendations.html
 │   └── errors/
 │       ├── 400.html
 │       ├── 404.html
@@ -167,7 +177,8 @@ InsightAI/
 │
 └── utils/
     ├── analyzer.py
-    └── cleaner.py
+    ├── cleaner.py
+    └── dashboard_recommender.py
 ```
 
 ---
