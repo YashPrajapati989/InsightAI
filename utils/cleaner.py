@@ -196,7 +196,10 @@ class DataCleaner:
         if is_date_col and not pd.api.types.is_datetime64_any_dtype(series):
             try:
                 # Attempt to parse date safely
-                self.df[col] = pd.to_datetime(series, errors='coerce')
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=UserWarning)
+                    self.df[col] = pd.to_datetime(series, errors='coerce')
                 self.datatypes_fixed += 1
                 self.cleaning_log.append(f"Converted column '{col}' to datetime format and handled invalid dates.")
                 series = self.df[col]

@@ -35,7 +35,10 @@ class DashboardRecommender:
             if 'date' in col_name_lower or 'time' in col_name_lower or 'year' in col_name_lower or 'month' in col_name_lower:
                 # Check if parseable as datetime
                 try:
-                    parsed = pd.to_datetime(series.dropna().head(10), errors='coerce')
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", category=UserWarning)
+                        parsed = pd.to_datetime(series.dropna().head(10), errors='coerce')
                     if not parsed.isna().all():
                         self.columns_info[col] = "Date/Time"
                         self.date_cols.append(col)
@@ -411,11 +414,12 @@ class DashboardRecommender:
             
         return insights
 
-    def recommend_theme(self) -> Dict[str, Any]:
+    def recommend_themes(self) -> List[Dict[str, Any]]:
         """
-        Recommend a complete dashboard design system — colors, typography,
+        Recommend 3 complete dashboard design systems — colors, typography,
         shadows, borders, chart styling, gridlines, and more.
-        Theme is chosen based on dataset domain keywords detected in column names.
+        The first theme is chosen based on dataset domain keywords detected in column names,
+        followed by two alternative themes.
         """
         col_names_combined = " ".join(str(c).lower() for c in self.df.columns)
 
@@ -427,297 +431,125 @@ class DashboardRecommender:
         is_marketing   = any(x in col_names_combined for x in ['campaign','clicks','impressions','ctr','conversion','lead','funnel','ad'])
         is_logistics   = any(x in col_names_combined for x in ['shipment','delivery','warehouse','freight','carrier','route','dispatch'])
 
-        # ===================================================================
-        # FINANCIAL / SALES THEME  — dark professional navy
-        # ===================================================================
-        if is_financial or is_retail:
-            theme = {
-                "theme_name": "Executive Finance",
-                "domain": "Financial / Retail Analytics",
+        theme_finance = {
+            "theme_name": "Executive Finance",
+            "domain": "Financial / Retail Analytics",
+            "canvas": {"background_color": "#0f172a","page_background": "#1e293b","grid_gap": "24px","border_radius_page": "0px","padding": "32px"},
+            "typography": {"font_family": "'Inter', 'Segoe UI', sans-serif","dashboard_title_font_size": "28px","dashboard_title_font_weight": "700","dashboard_title_color": "#f1f5f9","dashboard_title_letter_spacing": "0.04em","section_header_font_size": "14px","section_header_color": "#94a3b8","section_header_font_weight": "600","section_header_text_transform": "uppercase","section_header_letter_spacing": "0.08em","body_font_size": "13px","body_color": "#cbd5e1","kpi_value_font_size": "36px","kpi_value_font_weight": "800","kpi_value_color": "#ffffff","kpi_label_font_size": "12px","kpi_label_color": "#94a3b8","axis_label_font_size": "11px","axis_label_color": "#64748b","data_label_font_size": "11px","data_label_color": "#e2e8f0","legend_font_size": "12px","legend_color": "#94a3b8","tooltip_font_size": "12px","tooltip_color": "#f1f5f9"},
+            "kpi_card": {"background": "linear-gradient(145deg, #1e3a5f 0%, #1e293b 100%)","border": "1px solid rgba(99, 179, 237, 0.15)","border_radius": "16px","padding": "24px 28px","box_shadow": "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)","accent_bar_color": "#3b82f6","accent_bar_width": "4px","hover_shadow": "0 8px 32px rgba(59,130,246,0.25)","hover_border": "1px solid rgba(59,130,246,0.4)","icon_background": "rgba(59,130,246,0.12)","icon_color": "#60a5fa"},
+            "chart_panel": {"background": "#1e293b","border": "1px solid rgba(148,163,184,0.08)","border_radius": "16px","padding": "24px","box_shadow": "0 2px 16px rgba(0,0,0,0.35)","header_border_bottom": "1px solid rgba(148,163,184,0.1)","header_padding_bottom": "14px","header_margin_bottom": "20px"},
+            "chart_colors": {"primary_palette": ["#3b82f6","#06b6d4","#8b5cf6","#10b981","#f59e0b","#ef4444","#ec4899","#14b8a6"],"positive_color": "#10b981","negative_color": "#ef4444","neutral_color": "#94a3b8","line_chart_color": "#3b82f6","line_chart_fill": "rgba(59,130,246,0.08)","line_chart_stroke_width": "2.5px","bar_chart_color": "#3b82f6","bar_chart_hover_color": "#60a5fa","bar_chart_border_radius": "6px 6px 0 0","pie_chart_colors": ["#3b82f6","#06b6d4","#8b5cf6","#10b981","#f59e0b","#ef4444"],"scatter_dot_color": "#8b5cf6","scatter_dot_radius": "5px","heatmap_low": "#1e293b","heatmap_high": "#3b82f6"},
+            "axes_and_gridlines": {"gridline_color": "rgba(148,163,184,0.08)","gridline_style": "dashed","gridline_width": "1px","show_x_gridlines": False,"show_y_gridlines": True,"axis_line_color": "rgba(148,163,184,0.15)","axis_tick_color": "#475569","zero_line_color": "rgba(148,163,184,0.3)","zero_line_width": "1px"},
+            "data_labels": {"show_on_bars": True,"show_on_lines": False,"show_on_pie": True,"position": "outside","font_size": "11px","font_weight": "600","color": "#e2e8f0","background": "transparent","border_radius": "4px","padding": "2px 4px"},
+            "tooltip": {"background": "#0f172a","border": "1px solid rgba(99,179,237,0.2)","border_radius": "10px","padding": "12px 16px","box_shadow": "0 8px 24px rgba(0,0,0,0.6)","font_size": "12px","text_color": "#f1f5f9","header_color": "#94a3b8","value_color": "#60a5fa"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#94a3b8","marker_shape": "circle","marker_size": "8px","gap_between_items": "16px"},
+            "slicer": {"background": "#1e293b","border": "1px solid rgba(148,163,184,0.15)","border_radius": "10px","active_background": "#3b82f6","active_color": "#ffffff","font_size": "13px","color": "#94a3b8","padding": "8px 14px"},
+            "dashboard_title": {"text": "Executive Performance Dashboard","font_size": "28px","font_weight": "700","color": "#f1f5f9","subtitle_text": "Real-time KPI monitoring and trend analysis","subtitle_color": "#94a3b8","subtitle_font_size": "14px","border_bottom": "1px solid rgba(148,163,184,0.1)","padding_bottom": "24px","margin_bottom": "32px","logo_alignment": "right"},
+            "table": {"header_background": "#1e3a5f","header_color": "#93c5fd","header_font_weight": "700","row_background": "#1e293b","alternate_row_background": "#162032","border": "1px solid rgba(148,163,184,0.08)","row_hover_background": "rgba(59,130,246,0.08)","cell_padding": "10px 14px","font_size": "13px","color": "#cbd5e1","border_radius": "10px"},
+        }
 
-                # Canvas
-                "canvas": {
-                    "background_color": "#0f172a",
-                    "page_background": "#1e293b",
-                    "grid_gap": "24px",
-                    "border_radius_page": "0px",
-                    "padding": "32px",
-                },
+        theme_healthcare = {
+            "theme_name": "Clinical Clarity",
+            "domain": "Healthcare Analytics",
+            "canvas": {"background_color": "#f0fdf9","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
+            "typography": {"font_family": "'DM Sans', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#134e4a","kpi_value_font_size": "34px","kpi_value_color": "#0f766e","kpi_label_color": "#64748b","body_color": "#374151","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
+            "kpi_card": {"background": "#ffffff","border": "1px solid #ccfbf1","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(20,184,166,0.1)","accent_bar_color": "#14b8a6","icon_color": "#0d9488"},
+            "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
+            "chart_colors": {"primary_palette": ["#0d9488","#06b6d4","#3b82f6","#8b5cf6","#f59e0b","#ef4444"],"line_chart_color": "#14b8a6","bar_chart_color": "#0d9488","pie_chart_colors": ["#14b8a6","#06b6d4","#3b82f6","#8b5cf6","#f59e0b","#ef4444"],"positive_color": "#10b981","negative_color": "#ef4444"},
+            "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
+            "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#374151","position": "outside"},
+            "tooltip": {"background": "#ffffff","border": "1px solid #ccfbf1","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.12)","text_color": "#111827"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
+            "slicer": {"background": "#f0fdf9","border": "1px solid #99f6e4","border_radius": "8px","active_background": "#14b8a6","active_color": "#ffffff","font_size": "13px"},
+            "dashboard_title": {"text": "Clinical Operations Dashboard","font_size": "26px","font_weight": "700","color": "#134e4a","subtitle_text": "Patient outcomes, resource utilization, and performance metrics","subtitle_color": "#64748b"},
+            "table": {"header_background": "#f0fdf9","header_color": "#0f766e","row_background": "#ffffff","alternate_row_background": "#f8fffe","border": "1px solid #ccfbf1","row_hover_background": "rgba(20,184,166,0.05)","font_size": "13px","color": "#374151","border_radius": "10px"},
+        }
 
-                # Typography
-                "typography": {
-                    "font_family": "'Inter', 'Segoe UI', sans-serif",
-                    "dashboard_title_font_size": "28px",
-                    "dashboard_title_font_weight": "700",
-                    "dashboard_title_color": "#f1f5f9",
-                    "dashboard_title_letter_spacing": "0.04em",
-                    "section_header_font_size": "14px",
-                    "section_header_color": "#94a3b8",
-                    "section_header_font_weight": "600",
-                    "section_header_text_transform": "uppercase",
-                    "section_header_letter_spacing": "0.08em",
-                    "body_font_size": "13px",
-                    "body_color": "#cbd5e1",
-                    "kpi_value_font_size": "36px",
-                    "kpi_value_font_weight": "800",
-                    "kpi_value_color": "#ffffff",
-                    "kpi_label_font_size": "12px",
-                    "kpi_label_color": "#94a3b8",
-                    "axis_label_font_size": "11px",
-                    "axis_label_color": "#64748b",
-                    "data_label_font_size": "11px",
-                    "data_label_color": "#e2e8f0",
-                    "legend_font_size": "12px",
-                    "legend_color": "#94a3b8",
-                    "tooltip_font_size": "12px",
-                    "tooltip_color": "#f1f5f9",
-                },
+        theme_hr = {
+            "theme_name": "People Analytics",
+            "domain": "HR & Workforce Analytics",
+            "canvas": {"background_color": "#faf5ff","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
+            "typography": {"font_family": "'Outfit', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#581c87","kpi_value_font_size": "34px","kpi_value_color": "#7c3aed","kpi_label_color": "#6b7280","body_color": "#374151","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
+            "kpi_card": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(124,58,237,0.1)","accent_bar_color": "#8b5cf6","icon_color": "#7c3aed"},
+            "chart_panel": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
+            "chart_colors": {"primary_palette": ["#8b5cf6","#a78bfa","#f59e0b","#ec4899","#06b6d4","#10b981"],"line_chart_color": "#8b5cf6","bar_chart_color": "#8b5cf6","pie_chart_colors": ["#8b5cf6","#a78bfa","#f59e0b","#ec4899","#06b6d4","#10b981"],"positive_color": "#10b981","negative_color": "#ef4444"},
+            "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#ede9fe","axis_tick_color": "#9ca3af"},
+            "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#374151","position": "outside"},
+            "tooltip": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.12)","text_color": "#111827"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
+            "slicer": {"background": "#faf5ff","border": "1px solid #ede9fe","border_radius": "8px","active_background": "#8b5cf6","active_color": "#ffffff","font_size": "13px"},
+            "dashboard_title": {"text": "People Analytics Dashboard","font_size": "26px","font_weight": "700","color": "#581c87","subtitle_text": "Workforce performance, headcount, and engagement metrics","subtitle_color": "#6b7280"},
+            "table": {"header_background": "#faf5ff","header_color": "#7c3aed","row_background": "#ffffff","alternate_row_background": "#fdfcff","border": "1px solid #ede9fe","row_hover_background": "rgba(139,92,246,0.05)","font_size": "13px","color": "#374151","border_radius": "10px"},
+        }
 
-                # KPI Cards
-                "kpi_card": {
-                    "background": "linear-gradient(145deg, #1e3a5f 0%, #1e293b 100%)",
-                    "border": "1px solid rgba(99, 179, 237, 0.15)",
-                    "border_radius": "16px",
-                    "padding": "24px 28px",
-                    "box_shadow": "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
-                    "accent_bar_color": "#3b82f6",
-                    "accent_bar_width": "4px",
-                    "hover_shadow": "0 8px 32px rgba(59,130,246,0.25)",
-                    "hover_border": "1px solid rgba(59,130,246,0.4)",
-                    "icon_background": "rgba(59,130,246,0.12)",
-                    "icon_color": "#60a5fa",
-                },
+        theme_marketing = {
+            "theme_name": "Growth Marketing",
+            "domain": "Marketing & Campaign Analytics",
+            "canvas": {"background_color": "#0c0a09","page_background": "#1c1917","grid_gap": "22px","border_radius_page": "0px","padding": "30px"},
+            "typography": {"font_family": "'Sora', 'Inter', sans-serif","dashboard_title_font_size": "28px","dashboard_title_color": "#fef3c7","kpi_value_font_size": "36px","kpi_value_color": "#fbbf24","kpi_label_color": "#a8a29e","body_color": "#d6d3d1","axis_label_color": "#78716c","data_label_color": "#fef3c7"},
+            "kpi_card": {"background": "linear-gradient(145deg, #292524 0%, #1c1917 100%)","border": "1px solid rgba(251,191,36,0.2)","border_radius": "16px","padding": "24px 28px","box_shadow": "0 4px 24px rgba(0,0,0,0.5)","accent_bar_color": "#f59e0b","icon_color": "#fbbf24"},
+            "chart_panel": {"background": "#1c1917","border": "1px solid rgba(251,191,36,0.08)","border_radius": "16px","padding": "24px","box_shadow": "0 2px 16px rgba(0,0,0,0.4)"},
+            "chart_colors": {"primary_palette": ["#f59e0b","#ef4444","#ec4899","#8b5cf6","#06b6d4","#10b981"],"line_chart_color": "#f59e0b","line_chart_fill": "rgba(245,158,11,0.08)","bar_chart_color": "#f59e0b","pie_chart_colors": ["#f59e0b","#ef4444","#ec4899","#8b5cf6","#06b6d4","#10b981"],"positive_color": "#10b981","negative_color": "#ef4444"},
+            "axes_and_gridlines": {"gridline_color": "rgba(255,255,255,0.05)","gridline_style": "dashed","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "rgba(255,255,255,0.08)","axis_tick_color": "#78716c"},
+            "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#fef3c7","position": "outside"},
+            "tooltip": {"background": "#0c0a09","border": "1px solid rgba(251,191,36,0.3)","border_radius": "10px","padding": "12px 16px","box_shadow": "0 8px 24px rgba(0,0,0,0.6)","text_color": "#fef3c7"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#a8a29e","marker_shape": "square"},
+            "slicer": {"background": "#292524","border": "1px solid rgba(251,191,36,0.15)","border_radius": "8px","active_background": "#f59e0b","active_color": "#0c0a09","font_size": "13px"},
+            "dashboard_title": {"text": "Campaign Performance Dashboard","font_size": "28px","font_weight": "700","color": "#fef3c7","subtitle_text": "Track reach, conversions, and ROI across all campaigns","subtitle_color": "#a8a29e"},
+            "table": {"header_background": "#292524","header_color": "#fbbf24","row_background": "#1c1917","alternate_row_background": "#231f1c","border": "1px solid rgba(251,191,36,0.08)","row_hover_background": "rgba(245,158,11,0.06)","font_size": "13px","color": "#d6d3d1","border_radius": "10px"},
+        }
 
-                # Chart Panel
-                "chart_panel": {
-                    "background": "#1e293b",
-                    "border": "1px solid rgba(148,163,184,0.08)",
-                    "border_radius": "16px",
-                    "padding": "24px",
-                    "box_shadow": "0 2px 16px rgba(0,0,0,0.35)",
-                    "header_border_bottom": "1px solid rgba(148,163,184,0.1)",
-                    "header_padding_bottom": "14px",
-                    "header_margin_bottom": "20px",
-                },
+        theme_logistics = {
+            "theme_name": "Operations Hub",
+            "domain": "Logistics & Supply Chain Analytics",
+            "canvas": {"background_color": "#f8fafc","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
+            "typography": {"font_family": "'IBM Plex Sans', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#0f172a","kpi_value_font_size": "34px","kpi_value_color": "#059669","kpi_label_color": "#64748b","body_color": "#334155","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
+            "kpi_card": {"background": "#ffffff","border": "1px solid #d1fae5","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(5,150,105,0.08)","accent_bar_color": "#10b981","icon_color": "#059669"},
+            "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.05)"},
+            "chart_colors": {"primary_palette": ["#059669","#0284c7","#7c3aed","#ea580c","#d97706","#dc2626"],"line_chart_color": "#10b981","bar_chart_color": "#059669","pie_chart_colors": ["#10b981","#0284c7","#7c3aed","#ea580c","#d97706","#dc2626"],"positive_color": "#10b981","negative_color": "#ef4444"},
+            "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.04)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
+            "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#334155","position": "outside"},
+            "tooltip": {"background": "#ffffff","border": "1px solid #d1fae5","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.1)","text_color": "#111827"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
+            "slicer": {"background": "#f0fdf4","border": "1px solid #bbf7d0","border_radius": "8px","active_background": "#10b981","active_color": "#ffffff","font_size": "13px"},
+            "dashboard_title": {"text": "Supply Chain Operations Dashboard","font_size": "26px","font_weight": "700","color": "#0f172a","subtitle_text": "Shipment tracking, fulfillment rates, and delivery performance","subtitle_color": "#64748b"},
+            "table": {"header_background": "#f0fdf4","header_color": "#065f46","row_background": "#ffffff","alternate_row_background": "#f8fffe","border": "1px solid #d1fae5","row_hover_background": "rgba(16,185,129,0.04)","font_size": "13px","color": "#334155","border_radius": "10px"},
+        }
 
-                # Chart Colors (ordered for sequential use)
-                "chart_colors": {
-                    "primary_palette": ["#3b82f6","#06b6d4","#8b5cf6","#10b981","#f59e0b","#ef4444","#ec4899","#14b8a6"],
-                    "positive_color": "#10b981",
-                    "negative_color": "#ef4444",
-                    "neutral_color": "#94a3b8",
-                    "line_chart_color": "#3b82f6",
-                    "line_chart_fill": "rgba(59,130,246,0.08)",
-                    "line_chart_stroke_width": "2.5px",
-                    "bar_chart_color": "#3b82f6",
-                    "bar_chart_hover_color": "#60a5fa",
-                    "bar_chart_border_radius": "6px 6px 0 0",
-                    "pie_chart_colors": ["#3b82f6","#06b6d4","#8b5cf6","#10b981","#f59e0b","#ef4444"],
-                    "scatter_dot_color": "#8b5cf6",
-                    "scatter_dot_radius": "5px",
-                    "heatmap_low": "#1e293b",
-                    "heatmap_high": "#3b82f6",
-                },
+        theme_default = {
+            "theme_name": "Insight Blue",
+            "domain": "General Analytics",
+            "canvas": {"background_color": "#f1f5f9","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
+            "typography": {"font_family": "'Inter', 'Segoe UI', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#1e293b","kpi_value_font_size": "34px","kpi_value_color": "#2563eb","kpi_label_color": "#64748b","body_color": "#334155","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
+            "kpi_card": {"background": "#ffffff","border": "1px solid #e0e7ff","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(37,99,235,0.08)","accent_bar_color": "#2563eb","icon_color": "#2563eb"},
+            "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
+            "chart_colors": {"primary_palette": ["#2563eb","#7c3aed","#0d9488","#ea580c","#d97706","#dc2626"],"line_chart_color": "#2563eb","bar_chart_color": "#2563eb","pie_chart_colors": ["#2563eb","#7c3aed","#0d9488","#ea580c","#d97706","#dc2626"],"positive_color": "#10b981","negative_color": "#ef4444"},
+            "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
+            "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#334155","position": "outside"},
+            "tooltip": {"background": "#ffffff","border": "1px solid #e0e7ff","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.1)","text_color": "#111827"},
+            "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
+            "slicer": {"background": "#f1f5f9","border": "1px solid #e0e7ff","border_radius": "8px","active_background": "#2563eb","active_color": "#ffffff","font_size": "13px"},
+            "dashboard_title": {"text": "Insight Analytics Dashboard","font_size": "26px","font_weight": "700","color": "#1e293b","subtitle_text": "Explore trends, patterns, and data-driven insights","subtitle_color": "#64748b"},
+            "table": {"header_background": "#eff6ff","header_color": "#1e40af","row_background": "#ffffff","alternate_row_background": "#f8fafc","border": "1px solid #e0e7ff","row_hover_background": "rgba(37,99,235,0.04)","font_size": "13px","color": "#334155","border_radius": "10px"},
+        }
 
-                # Axes & Gridlines
-                "axes_and_gridlines": {
-                    "gridline_color": "rgba(148,163,184,0.08)",
-                    "gridline_style": "dashed",
-                    "gridline_width": "1px",
-                    "show_x_gridlines": False,
-                    "show_y_gridlines": True,
-                    "axis_line_color": "rgba(148,163,184,0.15)",
-                    "axis_tick_color": "#475569",
-                    "zero_line_color": "rgba(148,163,184,0.3)",
-                    "zero_line_width": "1px",
-                },
+        all_themes = [theme_finance, theme_healthcare, theme_hr, theme_marketing, theme_logistics, theme_default]
 
-                # Data Labels
-                "data_labels": {
-                    "show_on_bars": True,
-                    "show_on_lines": False,
-                    "show_on_pie": True,
-                    "position": "outside",
-                    "font_size": "11px",
-                    "font_weight": "600",
-                    "color": "#e2e8f0",
-                    "background": "transparent",
-                    "border_radius": "4px",
-                    "padding": "2px 4px",
-                },
+        if is_financial or is_retail: primary = theme_finance
+        elif is_healthcare: primary = theme_healthcare
+        elif is_hr: primary = theme_hr
+        elif is_marketing: primary = theme_marketing
+        elif is_logistics: primary = theme_logistics
+        else: primary = theme_default
 
-                # Tooltip
-                "tooltip": {
-                    "background": "#0f172a",
-                    "border": "1px solid rgba(99,179,237,0.2)",
-                    "border_radius": "10px",
-                    "padding": "12px 16px",
-                    "box_shadow": "0 8px 24px rgba(0,0,0,0.6)",
-                    "font_size": "12px",
-                    "text_color": "#f1f5f9",
-                    "header_color": "#94a3b8",
-                    "value_color": "#60a5fa",
-                },
+        recommended_themes = [primary]
+        for t in all_themes:
+            if t["theme_name"] != primary["theme_name"]:
+                recommended_themes.append(t)
+            if len(recommended_themes) == 3:
+                break
 
-                # Legend
-                "legend": {
-                    "position": "bottom",
-                    "font_size": "12px",
-                    "color": "#94a3b8",
-                    "marker_shape": "circle",
-                    "marker_size": "8px",
-                    "gap_between_items": "16px",
-                },
-
-                # Filters / Slicers
-                "slicer": {
-                    "background": "#1e293b",
-                    "border": "1px solid rgba(148,163,184,0.15)",
-                    "border_radius": "10px",
-                    "active_background": "#3b82f6",
-                    "active_color": "#ffffff",
-                    "font_size": "13px",
-                    "color": "#94a3b8",
-                    "padding": "8px 14px",
-                },
-
-                # Dashboard Title
-                "dashboard_title": {
-                    "text": "Executive Performance Dashboard",
-                    "font_size": "28px",
-                    "font_weight": "700",
-                    "color": "#f1f5f9",
-                    "subtitle_text": "Real-time KPI monitoring and trend analysis",
-                    "subtitle_color": "#94a3b8",
-                    "subtitle_font_size": "14px",
-                    "border_bottom": "1px solid rgba(148,163,184,0.1)",
-                    "padding_bottom": "24px",
-                    "margin_bottom": "32px",
-                    "logo_alignment": "right",
-                },
-
-                # Table Styling
-                "table": {
-                    "header_background": "#1e3a5f",
-                    "header_color": "#93c5fd",
-                    "header_font_weight": "700",
-                    "row_background": "#1e293b",
-                    "alternate_row_background": "#162032",
-                    "border": "1px solid rgba(148,163,184,0.08)",
-                    "row_hover_background": "rgba(59,130,246,0.08)",
-                    "cell_padding": "10px 14px",
-                    "font_size": "13px",
-                    "color": "#cbd5e1",
-                    "border_radius": "10px",
-                },
-            }
-
-        # ===================================================================
-        # HEALTHCARE THEME  — clean teal & white
-        # ===================================================================
-        elif is_healthcare:
-            theme = {
-                "theme_name": "Clinical Clarity",
-                "domain": "Healthcare Analytics",
-                "canvas": {"background_color": "#f0fdf9","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
-                "typography": {"font_family": "'DM Sans', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#134e4a","kpi_value_font_size": "34px","kpi_value_color": "#0f766e","kpi_label_color": "#64748b","body_color": "#374151","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
-                "kpi_card": {"background": "#ffffff","border": "1px solid #ccfbf1","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(20,184,166,0.1)","accent_bar_color": "#14b8a6","icon_color": "#0d9488"},
-                "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
-                "chart_colors": {"primary_palette": ["#0d9488","#06b6d4","#3b82f6","#8b5cf6","#f59e0b","#ef4444"],"line_chart_color": "#14b8a6","bar_chart_color": "#0d9488","pie_chart_colors": ["#14b8a6","#06b6d4","#3b82f6","#8b5cf6","#f59e0b","#ef4444"],"positive_color": "#10b981","negative_color": "#ef4444"},
-                "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
-                "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#374151","position": "outside"},
-                "tooltip": {"background": "#ffffff","border": "1px solid #ccfbf1","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.12)","text_color": "#111827"},
-                "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
-                "slicer": {"background": "#f0fdf9","border": "1px solid #99f6e4","border_radius": "8px","active_background": "#14b8a6","active_color": "#ffffff","font_size": "13px"},
-                "dashboard_title": {"text": "Clinical Operations Dashboard","font_size": "26px","font_weight": "700","color": "#134e4a","subtitle_text": "Patient outcomes, resource utilization, and performance metrics","subtitle_color": "#64748b"},
-                "table": {"header_background": "#f0fdf9","header_color": "#0f766e","row_background": "#ffffff","alternate_row_background": "#f8fffe","border": "1px solid #ccfbf1","row_hover_background": "rgba(20,184,166,0.05)","font_size": "13px","color": "#374151","border_radius": "10px"},
-            }
-
-        # ===================================================================
-        # HR THEME  — warm violet & amber
-        # ===================================================================
-        elif is_hr:
-            theme = {
-                "theme_name": "People Analytics",
-                "domain": "HR & Workforce Analytics",
-                "canvas": {"background_color": "#faf5ff","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
-                "typography": {"font_family": "'Outfit', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#581c87","kpi_value_font_size": "34px","kpi_value_color": "#7c3aed","kpi_label_color": "#6b7280","body_color": "#374151","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
-                "kpi_card": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(124,58,237,0.1)","accent_bar_color": "#8b5cf6","icon_color": "#7c3aed"},
-                "chart_panel": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
-                "chart_colors": {"primary_palette": ["#8b5cf6","#a78bfa","#f59e0b","#ec4899","#06b6d4","#10b981"],"line_chart_color": "#8b5cf6","bar_chart_color": "#8b5cf6","pie_chart_colors": ["#8b5cf6","#a78bfa","#f59e0b","#ec4899","#06b6d4","#10b981"],"positive_color": "#10b981","negative_color": "#ef4444"},
-                "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#ede9fe","axis_tick_color": "#9ca3af"},
-                "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#374151","position": "outside"},
-                "tooltip": {"background": "#ffffff","border": "1px solid #ede9fe","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.12)","text_color": "#111827"},
-                "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
-                "slicer": {"background": "#faf5ff","border": "1px solid #ede9fe","border_radius": "8px","active_background": "#8b5cf6","active_color": "#ffffff","font_size": "13px"},
-                "dashboard_title": {"text": "People Analytics Dashboard","font_size": "26px","font_weight": "700","color": "#581c87","subtitle_text": "Workforce performance, headcount, and engagement metrics","subtitle_color": "#6b7280"},
-                "table": {"header_background": "#faf5ff","header_color": "#7c3aed","row_background": "#ffffff","alternate_row_background": "#fdfcff","border": "1px solid #ede9fe","row_hover_background": "rgba(139,92,246,0.05)","font_size": "13px","color": "#374151","border_radius": "10px"},
-            }
-
-        # ===================================================================
-        # MARKETING THEME  — bold orange & yellow
-        # ===================================================================
-        elif is_marketing:
-            theme = {
-                "theme_name": "Growth Marketing",
-                "domain": "Marketing & Campaign Analytics",
-                "canvas": {"background_color": "#0c0a09","page_background": "#1c1917","grid_gap": "22px","border_radius_page": "0px","padding": "30px"},
-                "typography": {"font_family": "'Sora', 'Inter', sans-serif","dashboard_title_font_size": "28px","dashboard_title_color": "#fef3c7","kpi_value_font_size": "36px","kpi_value_color": "#fbbf24","kpi_label_color": "#a8a29e","body_color": "#d6d3d1","axis_label_color": "#78716c","data_label_color": "#fef3c7"},
-                "kpi_card": {"background": "linear-gradient(145deg, #292524 0%, #1c1917 100%)","border": "1px solid rgba(251,191,36,0.2)","border_radius": "16px","padding": "24px 28px","box_shadow": "0 4px 24px rgba(0,0,0,0.5)","accent_bar_color": "#f59e0b","icon_color": "#fbbf24"},
-                "chart_panel": {"background": "#1c1917","border": "1px solid rgba(251,191,36,0.08)","border_radius": "16px","padding": "24px","box_shadow": "0 2px 16px rgba(0,0,0,0.4)"},
-                "chart_colors": {"primary_palette": ["#f59e0b","#ef4444","#ec4899","#8b5cf6","#06b6d4","#10b981"],"line_chart_color": "#f59e0b","line_chart_fill": "rgba(245,158,11,0.08)","bar_chart_color": "#f59e0b","pie_chart_colors": ["#f59e0b","#ef4444","#ec4899","#8b5cf6","#06b6d4","#10b981"],"positive_color": "#10b981","negative_color": "#ef4444"},
-                "axes_and_gridlines": {"gridline_color": "rgba(255,255,255,0.05)","gridline_style": "dashed","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "rgba(255,255,255,0.08)","axis_tick_color": "#78716c"},
-                "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#fef3c7","position": "outside"},
-                "tooltip": {"background": "#0c0a09","border": "1px solid rgba(251,191,36,0.3)","border_radius": "10px","padding": "12px 16px","box_shadow": "0 8px 24px rgba(0,0,0,0.6)","text_color": "#fef3c7"},
-                "legend": {"position": "bottom","font_size": "12px","color": "#a8a29e","marker_shape": "square"},
-                "slicer": {"background": "#292524","border": "1px solid rgba(251,191,36,0.15)","border_radius": "8px","active_background": "#f59e0b","active_color": "#0c0a09","font_size": "13px"},
-                "dashboard_title": {"text": "Campaign Performance Dashboard","font_size": "28px","font_weight": "700","color": "#fef3c7","subtitle_text": "Track reach, conversions, and ROI across all campaigns","subtitle_color": "#a8a29e"},
-                "table": {"header_background": "#292524","header_color": "#fbbf24","row_background": "#1c1917","alternate_row_background": "#231f1c","border": "1px solid rgba(251,191,36,0.08)","row_hover_background": "rgba(245,158,11,0.06)","font_size": "13px","color": "#d6d3d1","border_radius": "10px"},
-            }
-
-        # ===================================================================
-        # LOGISTICS THEME  — slate blue & emerald
-        # ===================================================================
-        elif is_logistics:
-            theme = {
-                "theme_name": "Operations Hub",
-                "domain": "Logistics & Supply Chain Analytics",
-                "canvas": {"background_color": "#f8fafc","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
-                "typography": {"font_family": "'IBM Plex Sans', 'Inter', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#0f172a","kpi_value_font_size": "34px","kpi_value_color": "#059669","kpi_label_color": "#64748b","body_color": "#334155","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
-                "kpi_card": {"background": "#ffffff","border": "1px solid #d1fae5","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(5,150,105,0.08)","accent_bar_color": "#10b981","icon_color": "#059669"},
-                "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.05)"},
-                "chart_colors": {"primary_palette": ["#059669","#0284c7","#7c3aed","#ea580c","#d97706","#dc2626"],"line_chart_color": "#10b981","bar_chart_color": "#059669","pie_chart_colors": ["#10b981","#0284c7","#7c3aed","#ea580c","#d97706","#dc2626"],"positive_color": "#10b981","negative_color": "#ef4444"},
-                "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.04)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
-                "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#334155","position": "outside"},
-                "tooltip": {"background": "#ffffff","border": "1px solid #d1fae5","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.1)","text_color": "#111827"},
-                "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
-                "slicer": {"background": "#f0fdf4","border": "1px solid #bbf7d0","border_radius": "8px","active_background": "#10b981","active_color": "#ffffff","font_size": "13px"},
-                "dashboard_title": {"text": "Supply Chain Operations Dashboard","font_size": "26px","font_weight": "700","color": "#0f172a","subtitle_text": "Shipment tracking, fulfillment rates, and delivery performance","subtitle_color": "#64748b"},
-                "table": {"header_background": "#f0fdf4","header_color": "#065f46","row_background": "#ffffff","alternate_row_background": "#f8fffe","border": "1px solid #d1fae5","row_hover_background": "rgba(16,185,129,0.04)","font_size": "13px","color": "#334155","border_radius": "10px"},
-            }
-
-        # ===================================================================
-        # DEFAULT GENERAL THEME  — clean indigo & slate
-        # ===================================================================
-        else:
-            theme = {
-                "theme_name": "Insight Blue",
-                "domain": "General Analytics",
-                "canvas": {"background_color": "#f1f5f9","page_background": "#ffffff","grid_gap": "20px","border_radius_page": "0px","padding": "28px"},
-                "typography": {"font_family": "'Inter', 'Segoe UI', sans-serif","dashboard_title_font_size": "26px","dashboard_title_color": "#1e293b","kpi_value_font_size": "34px","kpi_value_color": "#2563eb","kpi_label_color": "#64748b","body_color": "#334155","axis_label_color": "#6b7280","data_label_color": "#1f2937"},
-                "kpi_card": {"background": "#ffffff","border": "1px solid #e0e7ff","border_radius": "14px","padding": "22px 26px","box_shadow": "0 2px 16px rgba(37,99,235,0.08)","accent_bar_color": "#2563eb","icon_color": "#2563eb"},
-                "chart_panel": {"background": "#ffffff","border": "1px solid #e2e8f0","border_radius": "14px","padding": "22px","box_shadow": "0 2px 12px rgba(0,0,0,0.06)"},
-                "chart_colors": {"primary_palette": ["#2563eb","#7c3aed","#0d9488","#ea580c","#d97706","#dc2626"],"line_chart_color": "#2563eb","bar_chart_color": "#2563eb","pie_chart_colors": ["#2563eb","#7c3aed","#0d9488","#ea580c","#d97706","#dc2626"],"positive_color": "#10b981","negative_color": "#ef4444"},
-                "axes_and_gridlines": {"gridline_color": "rgba(0,0,0,0.05)","gridline_style": "solid","show_y_gridlines": True,"show_x_gridlines": False,"axis_line_color": "#e2e8f0","axis_tick_color": "#9ca3af"},
-                "data_labels": {"show_on_bars": True,"show_on_pie": True,"font_size": "11px","color": "#334155","position": "outside"},
-                "tooltip": {"background": "#ffffff","border": "1px solid #e0e7ff","border_radius": "10px","padding": "12px 16px","box_shadow": "0 4px 20px rgba(0,0,0,0.1)","text_color": "#111827"},
-                "legend": {"position": "bottom","font_size": "12px","color": "#6b7280","marker_shape": "circle"},
-                "slicer": {"background": "#f1f5f9","border": "1px solid #e0e7ff","border_radius": "8px","active_background": "#2563eb","active_color": "#ffffff","font_size": "13px"},
-                "dashboard_title": {"text": "Insight Analytics Dashboard","font_size": "26px","font_weight": "700","color": "#1e293b","subtitle_text": "Explore trends, patterns, and data-driven insights","subtitle_color": "#64748b"},
-                "table": {"header_background": "#eff6ff","header_color": "#1e40af","row_background": "#ffffff","alternate_row_background": "#f8fafc","border": "1px solid #e0e7ff","row_hover_background": "rgba(37,99,235,0.04)","font_size": "13px","color": "#334155","border_radius": "10px"},
-            }
-
-        return theme
+        return recommended_themes
 
     def recommend(self) -> Dict[str, Any]:
         """
@@ -729,7 +561,7 @@ class DashboardRecommender:
         layout  = self.recommend_layout(kpis, charts)
         questions = self.generate_questions()
         insights  = self.generate_insights()
-        theme     = self.recommend_theme()
+        themes    = self.recommend_themes()
 
         return {
             "kpis":      kpis,
@@ -737,5 +569,5 @@ class DashboardRecommender:
             "layout":    layout,
             "questions": questions,
             "insights":  insights,
-            "theme":     theme,
+            "themes":    themes,
         }

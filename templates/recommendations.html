@@ -172,8 +172,6 @@
 </head>
 <body>
 
-{% set t = recommendations.theme %}
-
 <div class="container">
 
     <header class="header">
@@ -199,345 +197,361 @@
     </section>
 
     <!-- ================================================================
-         SECTION 2: LIVE THEME PREVIEW
+         SECTION 2 & 3: THEME SLIDESHOW
     ================================================================ -->
-    <section class="card">
-        <h2>🎨 Dashboard Theme — <em style="color:#4f46e5;">{{ t.theme_name }}</em></h2>
-        <p style="margin-bottom:20px; color:#666; font-size:0.9rem;">
-            Domain detected: <strong>{{ t.domain }}</strong>. Below is a live preview of how your dashboard will look.
-        </p>
+    <div id="theme-slideshow-container" data-total-themes="{{ recommendations.themes|length }}">
+        {% for t in recommendations.themes %}
+        <div class="theme-slide" id="theme-slide-{{ loop.index0 }}" style="display: {% if loop.index0 == 0 %}block{% else %}none{% endif %};">
 
-        <!-- Live Preview -->
-        <div class="live-preview" style="background:{{ t.canvas.page_background }};">
-            <!-- Header -->
-            <div class="lp-header" style="background:{{ t.canvas.background_color }};">
-                <div style="font-family:{{ t.typography.font_family }};
-                            font-size:{{ t.typography.dashboard_title_font_size }};
-                            font-weight:700;
-                            color:{{ t.typography.dashboard_title_color }};">
-                    {{ t.dashboard_title.text }}
-                </div>
-                <div style="font-size:13px; color:{{ t.dashboard_title.subtitle_color }}; margin-top:4px;">
-                    {{ t.dashboard_title.subtitle_text }}
-                </div>
-            </div>
-
-            <!-- KPI Row Preview -->
-            <div class="lp-kpi-row" style="background:{{ t.canvas.page_background }};">
-                {% for kpi in recommendations.kpis %}
-                <div class="lp-kpi-card"
-                     style="background:{{ t.kpi_card.background }};
-                            border:{{ t.kpi_card.border }};
-                            border-left:{{ t.kpi_card.accent_bar_color }} solid 4px;
-                            box-shadow:{{ t.kpi_card.box_shadow }};
-                            border-radius:{{ t.kpi_card.border_radius }};">
-                    <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:{{ t.typography.kpi_label_color }}; margin-bottom:4px;">{{ kpi.name }}</div>
-                    <div style="font-size:22px; font-weight:800; color:{{ t.typography.kpi_value_color }}; font-family:{{ t.typography.font_family }};">{{ kpi.value }}</div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Chart Row Preview -->
-            <div class="lp-charts-row" style="background:{{ t.canvas.page_background }};">
-                {% for chart in recommendations.charts[:2] %}
-                <div class="lp-chart-box"
-                     style="background:{{ t.chart_panel.background }};
-                            border:{{ t.chart_panel.border }};
-                            box-shadow:{{ t.chart_panel.box_shadow }};
-                            border-radius:{{ t.chart_panel.border_radius }};">
-                    <div class="lp-chart-label" style="color:{{ t.typography.kpi_label_color }};">
-                        {{ chart.chart_name }} — {{ chart.x_axis }} vs {{ chart.y_axis }}
+            <!-- ================================================================
+                 SECTION 2: LIVE THEME PREVIEW
+            ================================================================ -->
+            <section class="card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <h2 style="margin-bottom: 8px;">🎨 Dashboard Theme — <em style="color:#4f46e5;">{{ t.theme_name }}</em></h2>
+                        <p style="color:#666; font-size:0.9rem; margin:0;">
+                            Domain detected: <strong>{{ t.domain }}</strong>. Below is a live preview of how your dashboard will look.
+                        </p>
                     </div>
-                    {% if chart.chart_name == "Bar Chart" or chart.chart_name == "Stacked Bar Chart" %}
-                    <div class="lp-bar-mini">
-                        {% for col in t.chart_colors.primary_palette[:6] %}
-                        <div class="lp-bar" style="background:{{ col }}; height:{{ [20,35,28,15,32,24][loop.index0] }}px;"></div>
+                    <button class="btn btn-next-theme" style="padding: 10px 18px; font-size: 0.95rem; background: linear-gradient(135deg, #4f46e5, #4338ca); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); transition: transform 0.2s;">
+                        🔄 Show Other Template
+                    </button>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="live-preview" style="background:{{ t.canvas.page_background }};">
+                    <!-- Header -->
+                    <div class="lp-header" style="background:{{ t.canvas.background_color }};">
+                        <div style="font-family:{{ t.typography.font_family }};
+                                    font-size:{{ t.typography.dashboard_title_font_size }};
+                                    font-weight:700;
+                                    color:{{ t.typography.dashboard_title_color }};">
+                            {{ t.dashboard_title.text }}
+                        </div>
+                        <div style="font-size:13px; color:{{ t.dashboard_title.subtitle_color }}; margin-top:4px;">
+                            {{ t.dashboard_title.subtitle_text }}
+                        </div>
+                    </div>
+
+                    <!-- KPI Row Preview -->
+                    <div class="lp-kpi-row" style="background:{{ t.canvas.page_background }};">
+                        {% for kpi in recommendations.kpis %}
+                        <div class="lp-kpi-card"
+                             style="background:{{ t.kpi_card.background }};
+                                    border:{{ t.kpi_card.border }};
+                                    border-left:{{ t.kpi_card.accent_bar_color }} solid 4px;
+                                    box-shadow:{{ t.kpi_card.box_shadow }};
+                                    border-radius:{{ t.kpi_card.border_radius }};">
+                            <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:{{ t.typography.kpi_label_color }}; margin-bottom:4px;">{{ kpi.name }}</div>
+                            <div style="font-size:22px; font-weight:800; color:{{ t.typography.kpi_value_color }}; font-family:{{ t.typography.font_family }};">{{ kpi.value }}</div>
+                        </div>
                         {% endfor %}
                     </div>
-                    {% elif chart.chart_name == "Line Chart" %}
-                    <div class="lp-line-mini">
-                        <svg class="lp-line-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
-                            <polyline points="0,35 30,20 60,28 90,10 120,18 150,5 200,12"
-                                      fill="none" stroke="{{ t.chart_colors.line_chart_color }}" stroke-width="2.5"/>
-                        </svg>
-                    </div>
-                    {% else %}
-                    <div class="lp-bar-mini">
-                        {% for col in t.chart_colors.pie_chart_colors[:4] %}
-                        <div class="lp-bar" style="background:{{ col }}; height:{{ [28,20,35,15][loop.index0] }}px; border-radius:50% 50% 0 0;"></div>
+
+                    <!-- Chart Row Preview -->
+                    <div class="lp-charts-row" style="background:{{ t.canvas.page_background }};">
+                        {% for chart in recommendations.charts[:2] %}
+                        <div class="lp-chart-box"
+                             style="background:{{ t.chart_panel.background }};
+                                    border:{{ t.chart_panel.border }};
+                                    box-shadow:{{ t.chart_panel.box_shadow }};
+                                    border-radius:{{ t.chart_panel.border_radius }};">
+                            <div class="lp-chart-label" style="color:{{ t.typography.kpi_label_color }};">
+                                {{ chart.chart_name }} — {{ chart.x_axis }} vs {{ chart.y_axis }}
+                            </div>
+                            {% if chart.chart_name == "Bar Chart" or chart.chart_name == "Stacked Bar Chart" %}
+                            <div class="lp-bar-mini">
+                                {% for col in t.chart_colors.primary_palette[:6] %}
+                                <div class="lp-bar" style="background:{{ col }}; height:{{ [20,35,28,15,32,24][loop.index0] }}px;"></div>
+                                {% endfor %}
+                            </div>
+                            {% elif chart.chart_name == "Line Chart" %}
+                            <div class="lp-line-mini">
+                                <svg class="lp-line-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                                    <polyline points="0,35 30,20 60,28 90,10 120,18 150,5 200,12"
+                                              fill="none" stroke="{{ t.chart_colors.line_chart_color }}" stroke-width="2.5"/>
+                                </svg>
+                            </div>
+                            {% else %}
+                            <div class="lp-bar-mini">
+                                {% for col in t.chart_colors.pie_chart_colors[:4] %}
+                                <div class="lp-bar" style="background:{{ col }}; height:{{ [28,20,35,15][loop.index0] }}px; border-radius:50% 50% 0 0;"></div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
                         {% endfor %}
                     </div>
-                    {% endif %}
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <!-- ================================================================
-         SECTION 3: COMPLETE DESIGN SPECIFICATION
-    ================================================================ -->
-    <section class="card">
-        <h2>🎨 Complete Design Specification</h2>
-        <p style="margin-bottom:24px; color:#666; font-size:0.9rem;">
-            Every design token required to build this dashboard in Power BI, Tableau, Figma, or code.
-        </p>
+            <!-- ================================================================
+                 SECTION 3: COMPLETE DESIGN SPECIFICATION
+            ================================================================ -->
+            <section class="card">
+                <h2>🎨 Complete Design Specification</h2>
+                <p style="margin-bottom:24px; color:#666; font-size:0.9rem;">
+                    Every design token required to build this dashboard in Power BI, Tableau, Figma, or code.
+                </p>
 
-        <!-- ── Canvas ── -->
-        <div class="spec-section">
-            <h3>🖼️ Canvas &amp; Layout</h3>
-            <div class="spec-grid">
-                {% for key, val in t.canvas.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- ── Typography ── -->
-        <div class="spec-section">
-            <h3>🔤 Typography</h3>
-            <div class="spec-grid">
-                {% for key, val in t.typography.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- ── KPI Card ── -->
-        <div class="spec-section">
-            <h3>📦 KPI Card Style</h3>
-            <div class="spec-grid">
-                {% for key, val in t.kpi_card.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- ── Chart Panel ── -->
-        <div class="spec-section">
-            <h3>📊 Chart Panel Style</h3>
-            <div class="spec-grid">
-                {% for key, val in t.chart_panel.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- ── Chart Color Palette ── -->
-        <div class="spec-section">
-            <h3>🎨 Chart Color Palette</h3>
-            <div style="margin-bottom:16px;">
-                <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PRIMARY PALETTE</p>
-                <div class="palette-strip">
-                    {% for color in t.chart_colors.primary_palette %}
-                    <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% if t.chart_colors.pie_chart_colors is defined %}
-            <div style="margin-bottom:16px;">
-                <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PIE / DONUT CHART PALETTE</p>
-                <div class="palette-strip">
-                    {% for color in t.chart_colors.pie_chart_colors %}
-                    <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            <div class="spec-grid" style="margin-top:12px;">
-                {% for key, val in t.chart_colors.items() %}
-                {% if val is string %}
-                <div class="spec-row">
-                    {% if val.startswith('#') or val.startswith('rgba') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- ── Positive / Negative Colors ── -->
-        <div class="spec-section">
-            <h3>✅ Positive &amp; Negative Indicators</h3>
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                <div style="display:flex; align-items:center; gap:10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 18px;">
-                    <div class="color-swatch" style="background:{{ t.chart_colors.positive_color }}; width:26px; height:26px;"></div>
-                    <div>
-                        <div style="font-size:11px; color:#166534; font-weight:700;">POSITIVE / GROWTH</div>
-                        <div style="font-size:14px; font-weight:800; color:#15803d;">{{ t.chart_colors.positive_color }}</div>
+                <!-- ── Canvas ── -->
+                <div class="spec-section">
+                    <h3>🖼️ Canvas &amp; Layout</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.canvas.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 18px;">
-                    <div class="color-swatch" style="background:{{ t.chart_colors.negative_color }}; width:26px; height:26px;"></div>
-                    <div>
-                        <div style="font-size:11px; color:#991b1b; font-weight:700;">NEGATIVE / DECLINE</div>
-                        <div style="font-size:14px; font-weight:800; color:#b91c1c;">{{ t.chart_colors.negative_color }}</div>
+
+                <!-- ── Typography ── -->
+                <div class="spec-section">
+                    <h3>🔤 Typography</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.typography.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ── Axes & Gridlines ── -->
-        <div class="spec-section">
-            <h3>📐 Axes &amp; Gridlines</h3>
-            <div class="spec-grid">
-                {% for key, val in t.axes_and_gridlines.items() %}
-                <div class="spec-row">
-                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% elif val is boolean %}
-                        <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
+                <!-- ── KPI Card ── -->
+                <div class="spec-section">
+                    <h3>📦 KPI Card Style</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.kpi_card.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ── Chart Panel ── -->
+                <div class="spec-section">
+                    <h3>📊 Chart Panel Style</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.chart_panel.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ── Chart Color Palette ── -->
+                <div class="spec-section">
+                    <h3>🎨 Chart Color Palette</h3>
+                    <div style="margin-bottom:16px;">
+                        <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PRIMARY PALETTE</p>
+                        <div class="palette-strip">
+                            {% for color in t.chart_colors.primary_palette %}
+                            <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if t.chart_colors.pie_chart_colors is defined %}
+                    <div style="margin-bottom:16px;">
+                        <p style="font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600;">PIE / DONUT CHART PALETTE</p>
+                        <div class="palette-strip">
+                            {% for color in t.chart_colors.pie_chart_colors %}
+                            <div class="palette-chip" style="background:{{ color }};" data-color="{{ color }}" title="{{ color }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                    <div class="spec-grid" style="margin-top:12px;">
+                        {% for key, val in t.chart_colors.items() %}
+                        {% if val is string %}
+                        <div class="spec-row">
+                            {% if val.startswith('#') or val.startswith('rgba') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Data Labels ── -->
-        <div class="spec-section">
-            <h3>🏷️ Data Labels</h3>
-            <div class="spec-grid">
-                {% for key, val in t.data_labels.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% elif val is boolean %}
-                        <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                <!-- ── Positive / Negative Colors ── -->
+                <div class="spec-section">
+                    <h3>✅ Positive &amp; Negative Indicators</h3>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 18px;">
+                            <div class="color-swatch" style="background:{{ t.chart_colors.positive_color }}; width:26px; height:26px;"></div>
+                            <div>
+                                <div style="font-size:11px; color:#166534; font-weight:700;">POSITIVE / GROWTH</div>
+                                <div style="font-size:14px; font-weight:800; color:#15803d;">{{ t.chart_colors.positive_color }}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 18px;">
+                            <div class="color-swatch" style="background:{{ t.chart_colors.negative_color }}; width:26px; height:26px;"></div>
+                            <div>
+                                <div style="font-size:11px; color:#991b1b; font-weight:700;">NEGATIVE / DECLINE</div>
+                                <div style="font-size:14px; font-weight:800; color:#b91c1c;">{{ t.chart_colors.negative_color }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Tooltip ── -->
-        <div class="spec-section">
-            <h3>💬 Tooltip</h3>
-            <div class="spec-grid">
-                {% for key, val in t.tooltip.items() %}
-                <div class="spec-row">
-                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                <!-- ── Axes & Gridlines ── -->
+                <div class="spec-section">
+                    <h3>📐 Axes &amp; Gridlines</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.axes_and_gridlines.items() %}
+                        <div class="spec-row">
+                            {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% elif val is boolean %}
+                                <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Legend ── -->
-        <div class="spec-section">
-            <h3>📌 Legend</h3>
-            <div class="spec-grid">
-                {% for key, val in t.legend.items() %}
-                <div class="spec-row">
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                <!-- ── Data Labels ── -->
+                <div class="spec-section">
+                    <h3>🏷️ Data Labels</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.data_labels.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% elif val is boolean %}
+                                <span class="bool-badge {{ 'bool-true' if val else 'bool-false' }}">{{ 'ON' if val else 'OFF' }}</span>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Slicer / Filter ── -->
-        <div class="spec-section">
-            <h3>🔘 Slicer / Filter Pill</h3>
-            <div style="margin-bottom:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">All Regions</span>
-                <span style="background:{{ t.slicer.active_background }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.active_color }}; padding:6px 14px; font-size:12px; font-weight:600;">North</span>
-                <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">South</span>
-            </div>
-            <div class="spec-grid">
-                {% for key, val in t.slicer.items() %}
-                <div class="spec-row">
-                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                <!-- ── Tooltip ── -->
+                <div class="spec-section">
+                    <h3>💬 Tooltip</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.tooltip.items() %}
+                        <div class="spec-row">
+                            {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Table ── -->
-        <div class="spec-section">
-            <h3>📋 Table / Data Grid</h3>
-            <!-- Mini Table Preview -->
-            <div style="margin-bottom:16px; border-radius:10px; overflow:hidden; border:{{ t.table.border }};">
-                <div style="background:{{ t.table.header_background }}; padding:10px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
-                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column A</span>
-                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column B</span>
-                    <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column C</span>
+                <!-- ── Legend ── -->
+                <div class="spec-section">
+                    <h3>📌 Legend</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.legend.items() %}
+                        <div class="spec-row">
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% for i in range(3) %}
-                <div style="background:{{ t.table.alternate_row_background if i % 2 else t.table.row_background }}; padding:9px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; border-top:{{ t.table.border }};">
-                    <span style="font-size:11px; color:{{ t.table.color }};">Sample {{ i+1 }}</span>
-                    <span style="font-size:11px; color:{{ t.table.color }};">Value {{ i*10 }}</span>
-                    <span style="font-size:11px; color:{{ t.chart_colors.positive_color }}; font-weight:700;">+{{ i*5 }}%</span>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="spec-grid">
-                {% for key, val in t.table.items() %}
-                <div class="spec-row">
-                    {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- ── Dashboard Title Block ── -->
-        <div class="spec-section">
-            <h3>🏷️ Dashboard Title Block</h3>
-            <div class="spec-grid">
-                {% for key, val in t.dashboard_title.items() %}
-                <div class="spec-row">
-                    {% if val is string and val.startswith('#') %}
-                        <div class="color-swatch" style="background:{{ val }};"></div>
-                    {% endif %}
-                    <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
-                    <span class="spec-val">{{ val }}</span>
+                <!-- ── Slicer / Filter ── -->
+                <div class="spec-section">
+                    <h3>🔘 Slicer / Filter Pill</h3>
+                    <div style="margin-bottom:14px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">All Regions</span>
+                        <span style="background:{{ t.slicer.active_background }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.active_color }}; padding:6px 14px; font-size:12px; font-weight:600;">North</span>
+                        <span style="background:{{ t.slicer.background }}; border:{{ t.slicer.border }}; border-radius:{{ t.slicer.border_radius }}; color:{{ t.slicer.color }}; padding:6px 14px; font-size:12px; font-weight:600;">South</span>
+                    </div>
+                    <div class="spec-grid">
+                        {% for key, val in t.slicer.items() %}
+                        <div class="spec-row">
+                            {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
 
-    </section>
+                <!-- ── Table ── -->
+                <div class="spec-section">
+                    <h3>📋 Table / Data Grid</h3>
+                    <!-- Mini Table Preview -->
+                    <div style="margin-bottom:16px; border-radius:10px; overflow:hidden; border:{{ t.table.border }};">
+                        <div style="background:{{ t.table.header_background }}; padding:10px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+                            <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column A</span>
+                            <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column B</span>
+                            <span style="color:{{ t.table.header_color }}; font-size:11px; font-weight:700;">Column C</span>
+                        </div>
+                        {% for i in range(3) %}
+                        <div style="background:{{ t.table.alternate_row_background if i % 2 else t.table.row_background }}; padding:9px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; border-top:{{ t.table.border }};">
+                            <span style="font-size:11px; color:{{ t.table.color }};">Sample {{ i+1 }}</span>
+                            <span style="font-size:11px; color:{{ t.table.color }};">Value {{ i*10 }}</span>
+                            <span style="font-size:11px; color:{{ t.chart_colors.positive_color }}; font-weight:700;">+{{ i*5 }}%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="spec-grid">
+                        {% for key, val in t.table.items() %}
+                        <div class="spec-row">
+                            {% if val is string and (val.startswith('#') or val.startswith('rgba')) %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ── Dashboard Title Block ── -->
+                <div class="spec-section">
+                    <h3>🏷️ Dashboard Title Block</h3>
+                    <div class="spec-grid">
+                        {% for key, val in t.dashboard_title.items() %}
+                        <div class="spec-row">
+                            {% if val is string and val.startswith('#') %}
+                                <div class="color-swatch" style="background:{{ val }};"></div>
+                            {% endif %}
+                            <span class="spec-key">{{ key.replace('_',' ').title() }}</span>
+                            <span class="spec-val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </div>
+        {% endfor %}
+    </div>
 
     <!-- ================================================================
          SECTION 4: LAYOUT WIREFRAME
@@ -584,7 +598,7 @@
         <h2>📈 Recommended Visualizations</h2>
         <div class="column-analysis-grid">
             {% for chart in recommendations.charts %}
-            <div class="analysis-card" style="border-left:5px solid {{ recommendations.theme.chart_colors.primary_palette[loop.index0 % recommendations.theme.chart_colors.primary_palette|length] }};">
+            <div class="analysis-card" style="border-left:5px solid {{ recommendations.themes[0].chart_colors.primary_palette[loop.index0 % recommendations.themes[0].chart_colors.primary_palette|length] }};">
                 <h3 class="analysis-title" style="font-weight:700; color:#1e293b;">📊 {{ chart.chart_name }}</h3>
                 <div class="analysis-meta" style="font-size:0.83rem; margin-bottom:10px;">
                     <div><span class="meta-label">X-Axis</span>: <span class="meta-value">{{ chart.x_axis }}</span></div>
@@ -626,5 +640,7 @@
     </div>
 
 </div>
+
+<script src="{{ url_for('static', filename='js/recommendations.js') }}"></script>
 </body>
 </html>
