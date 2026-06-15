@@ -53,7 +53,26 @@
           {% endif %}
         {% endwith %}
 
-        <form action="/upload" method="POST" enctype="multipart/form-data">
+        <!-- No-file toast notification -->
+        <div id="no-file-toast" style="
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #ff4757, #c0392b);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.35);
+            animation: slideIn 0.3s ease;
+        ">
+            <span style="font-size: 1.3rem;">📂</span>
+            <span>Please upload or drag &amp; drop a dataset file first before analyzing.</span>
+        </div>
+
+        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data" novalidate>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
             <div class="file-upload-container">
@@ -152,23 +171,52 @@
 
 </div>
 
+<style>
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
 <script>
 
 const fileInput = document.getElementById("dataset-file");
-const fileText = document.getElementById("selected-file");
+const fileText  = document.getElementById("selected-file");
+const form      = document.getElementById("upload-form");
+const toast     = document.getElementById("no-file-toast");
+
+let toastTimer = null;
 
 fileInput.addEventListener("change", function () {
-
     if (this.files.length > 0) {
-
         fileText.textContent = this.files[0].name;
-
+        // Hide toast if user selects a file after seeing it
+        toast.style.display = "none";
     } else {
-
         fileText.textContent = "Choose CSV or Excel File";
-
     }
+});
 
+form.addEventListener("submit", function (e) {
+    if (!fileInput.files || fileInput.files.length === 0) {
+        e.preventDefault();
+
+        // Show toast
+        toast.style.display = "flex";
+        toast.style.animation = "none";
+        // Trigger reflow to restart animation
+        void toast.offsetWidth;
+        toast.style.animation = "slideIn 0.3s ease";
+
+        // Auto-hide after 4 seconds
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.style.display = "none";
+        }, 4000);
+
+        // Scroll toast into view smoothly
+        toast.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
 });
 
 </script>
