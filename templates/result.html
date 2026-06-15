@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InsightAI - Dataset Report</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 
 <body>
@@ -18,9 +18,41 @@
             <p>AI-Powered Data Analyst Assistant</p>
         </header>
 
+        <!-- ============================
+             Data Quality Score
+        ============================ -->
         <section class="card">
 
-            <h2>Dataset Summary</h2>
+            <h2>Data Quality Score</h2>
+
+            <div class="score-wrap">
+                <div class="score-bar">
+                    <div class="progress-track">
+                        <div class="progress-bar {{ report.quality_score_color_class }}" style="--progress-width: {{ report.quality_score_progress_width }}"></div>
+                    </div>
+                </div>
+
+                <div class="score-value">
+                    <span class="score-number">{{ report.quality_score }}</span>
+                    <span class="score-of"> / 100</span>
+                </div>
+            </div>
+
+            <div class="score-legend">
+                <span class="legend-pill green">90-100</span>
+                <span class="legend-pill blue">70-89</span>
+                <span class="legend-pill orange">50-69</span>
+                <span class="legend-pill red"><50</span>
+            </div>
+
+        </section>
+
+        <!-- ============================
+             Statistics Cards
+        ============================ -->
+        <section class="card">
+
+            <h2>Dataset Statistics</h2>
 
             <div class="stats-grid">
 
@@ -36,56 +68,112 @@
 
                 <div class="stat-card">
                     <h3>{{ report.missing_values }}</h3>
-                    <p>Missing Values</p>
+                    <p>Missing</p>
                 </div>
 
                 <div class="stat-card">
-                    <h3>{{ report.duplicate_rows }}</h3>
-                    <p>Duplicate Rows</p>
+                    <h3>{{ report.duplicate_records_count }}</h3>
+                    <p>Duplicates</p>
                 </div>
 
             </div>
 
         </section>
 
+        <!-- ============================
+             Dataset Preview
+        ============================ -->
         <section class="card">
 
-            <h2>📋 Dataset Columns</h2>
+            <h2>Dataset Preview</h2>
 
-            <ul class="column-list">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            {% for c in report.preview.columns %}
+                            <th>{{ c }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report.preview.rows %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>
+                                {% if cell is none %}
+                                    —
+                                {% else %}
+                                    {{ cell }}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                {% for col in report.column_names %}
+        </section>
 
-                <li>{{ col }}</li>
+        <!-- ============================
+             Column Analysis
+        ============================ -->
+        <section class="card">
 
+            <h2>Column Analysis</h2>
+
+            <div class="column-analysis-grid">
+
+                {% for col in report.column_analysis %}
+                <div class="analysis-card">
+                    <h3 class="analysis-title">{{ col.name }}</h3>
+
+                    <div class="analysis-meta">
+                        <div><span class="meta-label">Type</span> : <span class="meta-value">{{ col.dtype }}</span></div>
+                        <div><span class="meta-label">Missing</span> : <span class="meta-value">{{ col.missing_count }}</span></div>
+                        <div><span class="meta-label">Unique</span> : <span class="meta-value">{{ col.unique_count }}</span></div>
+                    </div>
+
+                    {% if col.is_numeric %}
+                    <div class="analysis-stats">
+                        <div><span class="meta-label">Min</span> : <span class="meta-value">{{ col.min }}</span></div>
+                        <div><span class="meta-label">Max</span> : <span class="meta-value">{{ col.max }}</span></div>
+                        <div><span class="meta-label">Mean</span> : <span class="meta-value">{{ col.mean }}</span></div>
+                    </div>
+                    {% endif %}
+
+                </div>
                 {% endfor %}
 
-            </ul>
+            </div>
 
         </section>
 
+        <!-- ============================
+             Issues Detected
+        ============================ -->
         <section class="card">
 
-            <h2>⚠ Issues Detected</h2>
+            <h2>Issues Detected</h2>
 
             <ul class="issue-list">
-
-                {% if report.missing_values > 0 %}
-                <li>❌ {{ report.missing_values }} missing value(s) found.</li>
-                {% endif %}
-
-                {% if report.duplicate_rows > 0 %}
-                <li>⚠ {{ report.duplicate_rows }} duplicate row(s) detected.</li>
-                {% endif %}
-
-                {% if report.missing_values == 0 and report.duplicate_rows == 0 %}
-                <li>✅ No major data quality issues detected.</li>
-                {% endif %}
-
+                {% for issue in report.issues %}
+                    <li>{{ issue }}</li>
+                {% endfor %}
             </ul>
+
+            {% if report.duplicate_records_count > 0 %}
+            <div class="duplicate-note">
+                <strong>Duplicate records count:</strong> {{ report.duplicate_records_count }}
+            </div>
+            {% endif %}
 
         </section>
 
+        <!-- ============================
+             Future Features
+        ============================ -->
         <section class="card">
 
             <h2>🚀 Upcoming Features</h2>
@@ -117,11 +205,7 @@
         </section>
 
         <div class="button-container">
-
-            <a href="/" class="btn">
-                ⬅ Upload Another Dataset
-            </a>
-
+            <a href="/" class="btn">⬅ Upload Another Dataset</a>
         </div>
 
     </div>

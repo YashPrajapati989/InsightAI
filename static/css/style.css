@@ -137,6 +137,158 @@ body{
     border-radius:8px;
 }
 
+.duplicate-note{
+    margin-top:14px;
+    padding:12px;
+    border-radius:10px;
+    background:#eef2ff;
+    border-left:5px solid #4f46e5;
+}
+
+/* ===========================
+   Score
+   =========================== */
+
+.score-wrap{
+    margin-top:10px;
+}
+
+.score-bar{
+    width:100%;
+    margin-top:10px;
+}
+
+.progress-track{
+    width:100%;
+    background:#eef2f7;
+    border-radius:999px;
+    padding:3px;
+}
+
+.progress-bar{
+    height:22px;
+    border-radius:999px;
+    width:var(--progress-width, 0);
+    transition:width .5s ease;
+}
+
+.progress-green{ background:linear-gradient(90deg,#22c55e,#16a34a); }
+.progress-blue{ background:linear-gradient(90deg,#2563eb,#1d4ed8); }
+.progress-orange{ background:linear-gradient(90deg,#f59e0b,#d97706); }
+.progress-red{ background:linear-gradient(90deg,#ef4444,#dc2626); }
+
+.score-value{
+    margin-top:10px;
+    font-weight:800;
+    text-align:center;
+    font-size:28px;
+    color:#111827;
+}
+
+.score-number{ color:#2563eb; }
+
+.score-of{ color:#6b7280; }
+
+.score-legend{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.legend-pill{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    border:1px solid rgba(0,0,0,0.06);
+    background:#fff;
+}
+.legend-pill.green{ color:#16a34a; border-left:4px solid #22c55e; }
+.legend-pill.blue{ color:#1d4ed8; border-left:4px solid #2563eb; }
+.legend-pill.orange{ color:#b45309; border-left:4px solid #f59e0b; }
+.legend-pill.red{ color:#dc2626; border-left:4px solid #ef4444; }
+
+/* ===========================
+   Column Analysis Cards
+   =========================== */
+
+.column-analysis-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:18px;
+}
+
+.analysis-card{
+    border:1px solid rgba(37,99,235,0.15);
+    border-radius:12px;
+    padding:15px;
+    background:#f8fafc;
+}
+
+.analysis-title{
+    font-size:16px;
+    margin-bottom:10px;
+    color:#111827;
+}
+
+.analysis-meta, .analysis-stats{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.meta-label{
+    color:#6b7280;
+    font-weight:700;
+    margin-right:6px;
+}
+
+.meta-value{
+    color:#111827;
+    font-weight:600;
+}
+
+/* ===========================
+   Dataset Preview Table
+   =========================== */
+
+.table-responsive{
+    overflow-x:auto;
+    border-radius:12px;
+}
+
+.data-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    min-width:650px;
+}
+
+.data-table thead th{
+    text-align:left;
+    background:#eef2ff;
+    color:#3730a3;
+    font-weight:800;
+    padding:12px 10px;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    position:sticky;
+    top:0;
+    z-index:1;
+}
+
+.data-table tbody td{
+    padding:10px;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    color:#111827;
+    background:#fff;
+}
+
+.data-table tbody tr:nth-child(even) td{
+    background:#f8fafc;
+}
+
 /* ===========================
    Feature Cards
    =========================== */
@@ -241,6 +393,10 @@ body{
     .feature-grid{
 
         grid-template-columns:1fr;
+    }
+
+    .data-table{
+        min-width:520px;
     }
 
 }
@@ -551,3 +707,4 @@ body{
 
     color:#777;
 }
+
