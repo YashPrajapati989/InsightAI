@@ -14,7 +14,18 @@ InsightAI is an AI-powered web application that helps users analyze datasets, ev
 
 * Upload CSV (`.csv`) files
 * Upload Excel (`.xlsx`) files
-* Automatic file validation
+* Automatic file validation & secure UUID naming
+
+### 🧹 AI Data Cleaning (Phase 3)
+
+* One-Click Data Cleaning
+* Detailed dynamic explanation logs for each step taken
+* Before vs After Data Quality Score Comparison
+* Safe handling of missing values (median/mode/forward fill)
+* Duplicates & empty rows elimination
+* Standardize column names to lowercase `snake_case`
+* Numeric column detection and text trimming (removing multi-space characters)
+* Download Cleaned Dataset in original format (.csv or .xlsx)
 
 ### 📊 Advanced Dataset Profiling
 
@@ -77,7 +88,7 @@ For numeric columns:
 * Issue Detection Dashboard
 * Responsive Analytics UI
 
-## 🔜 Phase 3 — In Progress
+## ✅ Phase 3 — Completed
 
 * One-Click Data Cleaning
 * Explain Every Cleaning Step
@@ -122,12 +133,22 @@ For numeric columns:
 InsightAI/
 │
 ├── app.py
+├── config.py
 ├── requirements.txt
 ├── README.md
 │
 ├── uploads/
 ├── cleaned_files/
 ├── reports/
+│
+├── routes/
+│   ├── __init__.py
+│   ├── main.py
+│   └── upload.py
+│
+├── services/
+│   ├── dataset_service.py
+│   └── file_service.py
 │
 ├── static/
 │   ├── css/
@@ -136,10 +157,17 @@ InsightAI/
 │
 ├── templates/
 │   ├── index.html
-│   └── result.html
+│   ├── result.html
+│   ├── cleaned_result.html
+│   └── errors/
+│       ├── 400.html
+│       ├── 404.html
+│       ├── 413.html
+│       └── 500.html
 │
 └── utils/
-    └── analyzer.py
+    ├── analyzer.py
+    └── cleaner.py
 ```
 
 ---
@@ -197,7 +225,7 @@ http://127.0.0.1:5000
 Upload CSV / Excel
         │
         ▼
-Read Dataset
+Read Dataset Safely
         │
         ▼
 Generate Dataset Profile
@@ -209,13 +237,19 @@ Calculate Data Quality Score
 Preview First 10 Rows
         │
         ▼
-Analyze Columns
+Analyze Columns & Detect Issues
         │
         ▼
-Detect Data Issues
+Display Analytics Dashboard with AI Recommendations
         │
         ▼
-Display Analytics Dashboard
+Apply AI Data Cleaning (One-Click)
+        │
+        ▼
+Generate Cleaning Log & Before/After Score Comparison
+        │
+        ▼
+Export Cleaned Dataset (CSV / Excel)
 ```
 
 ---
