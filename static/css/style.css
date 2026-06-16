@@ -374,31 +374,68 @@ body{
     transform:translateY(-2px);
 }
 
+.analyze-btn{
+    width: 100%;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 18px 30px;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+}
+
+.analyze-btn:hover{
+    box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+    transform: translateY(-3px);
+}
+
 /* ===========================
    Responsive
    =========================== */
 
 @media(max-width:768px){
 
-    .header h1{
+    body {
+        padding: 15px;
+    }
 
-        font-size:30px;
+    .header h1{
+        font-size:28px;
+    }
+
+    .header p {
+        font-size: 15px;
+    }
+
+    .container {
+        padding: 0;
+    }
+
+    .card {
+        padding: 15px;
     }
 
     .stats-grid{
-
-        grid-template-columns:1fr;
+        grid-template-columns:1fr 1fr;
     }
 
-    .feature-grid{
-
+    .feature-grid, .column-analysis-grid{
         grid-template-columns:1fr;
     }
 
     .data-table{
-        min-width:520px;
+        min-width:100%;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
+    .btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
 }
 
 /* ===========================
@@ -569,15 +606,29 @@ body{
 @media(max-width:768px){
 
     .hero h1{
-
-        font-size:42px;
+        font-size:36px;
     }
 
     .hero p{
-
-        font-size:18px;
+        font-size:16px;
     }
 
+    .upload-card {
+        padding: 20px 15px;
+    }
+
+    .custom-file-btn {
+        padding: 20px;
+    }
+
+    .upload-icon {
+        font-size: 40px;
+    }
+
+    .analyze-btn {
+        font-size: 18px;
+        padding: 15px 20px;
+    }
 }
 
 /* ===========================
