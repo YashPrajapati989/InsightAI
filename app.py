@@ -69,6 +69,10 @@ def create_app(config_name="default"):
     # Register Error Handlers
     register_error_handlers(app)
     
+    # Start background cleanup thread
+    from utils.cleanup import start_cleanup_thread
+    start_cleanup_thread(app)
+    
     app.logger.info("InsightAI Application Startup")
     
     return app

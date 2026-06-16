@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: insightai
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn wsgi:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      # SECRET_KEY should be set manually in the Render Dashboard, do not put it here!

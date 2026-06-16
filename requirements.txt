@@ -10,3 +10,6 @@ Flask-Talisman
 python-dotenv
 werkzeug
 matplotlib
+
+gunicorn
+waitress
