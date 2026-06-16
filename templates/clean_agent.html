@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightAI - Interactive AI Data Cleaning Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-orange { background: #fef3c7; color: #92400e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+
+        .collapsible-header {
+            background: #f8fafc;
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: background 0.2s;
+        }
+        .collapsible-header:hover {
+            background: #f1f5f9;
+        }
+        .collapsible-content {
+            padding: 20px;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+        
+        .cause-card {
+            background: #f8fafc;
+            border-left: 4px solid #4f46e5;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .select-action {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            font-size: 14px;
+            color: #334155;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        .select-action:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .approve-check-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #e0f2fe;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+            transition: background 0.2s;
+        }
+        .approve-check-label:hover {
+            background: #bae6fd;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>🧠 Expert AI Data Cleaning Agent</h1>
+            <p>Multi-perspective statistical and business audit of your dataset</p>
+        </header>
+
+        <!-- Data Quality Summary -->
+        <section class="card">
+            <h2>Dataset Health Profile</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; color: #64748b; font-weight: 600;">Total Rows</div>
+                    <div style="font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 5px;">{{ analysis.total_rows }}</div>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; color: #64748b; font-weight: 600;">Total Columns</div>
+                    <div style="font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 5px;">{{ analysis.total_columns }}</div>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; color: #64748b; font-weight: 600;">Quality Score</div>
+                    <div style="font-size: 28px; font-weight: 800; color: #2563eb; margin-top: 5px;">{{ report.quality_score }} / 100</div>
+                </div>
+            </div>
+            
+            <div style="background: #fef3c7; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; font-size: 0.95rem; color: #78350f;">
+                <strong>💡 Core Principle:</strong> We never automatically impute or delete rows without explicit user approval. Review the statistical evidence below and construct your customized data cleaning pipeline.
+            </div>
+        </section>
+
+        <form id="cleaning-agent-form" action="/clean-agent/apply" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="file_id" value="{{ file_id }}"/>
+
+            <!-- Preprocessing Defaults -->
+            <section class="card">
+                <h2>Standard Record Integrity Checks</h2>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                        <input type="checkbox" name="remove_duplicates" {% if report.duplicate_records_count > 0 %}checked{% endif %} style="width: 18px; height: 18px;">
+                        <div>
+                            <strong>Remove Duplicate Rows ({{ report.duplicate_records_count }} found)</strong>
+                            <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px;">Removes duplicate rows that distort statistical averages and skew distributions.</p>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                        <input type="checkbox" name="remove_empty_rows" checked style="width: 18px; height: 18px;">
+                        <div>
+                            <strong>Remove Completely Empty Rows</strong>
+                            <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px;">Purges records where all fields are null (prevents loading blank rows).</p>
+                        </div>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Missing Value Analysis Section -->
+            <section class="card">
+                <h2>1. Missing Value Analysis &amp; Imputation</h2>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+                    Analyze empty cells, check consecutive block lengths, start/end temporal placement, and evaluate mapped business causes.
+                </p>
+
+                {% if not analysis.missing_analysis %}
+                    <div style="padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-weight: 600; text-align: center;">
+                        🎉 No missing values detected in this dataset!
+                    </div>
+                {% else %}
+                    {% for col, meta in analysis.missing_analysis.items() %}
+                        <div style="margin-bottom: 15px;">
+                            <div class="collapsible-header" onclick="toggleCollapsible('missing-{{ loop.index }}')">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="font-weight: 700; color: #0f172a; font-size: 1.05rem;">{{ col }}</span>
+                                    <span class="badge 
+                                        {% if meta.missing_percent < 5 %}badge-green
+                                        {% elif meta.missing_percent < 20 %}badge-blue
+                                        {% elif meta.missing_percent < 50 %}badge-orange
+                                        {% else %}badge-red{% endif %}">
+                                        {{ meta.missing_count }} Nulls ({{ "%.2f"|format(meta.missing_percent) }}%)
+                                    </span>
+                                </div>
+                                <span id="arrow-missing-{{ loop.index }}" style="font-weight: bold; transition: transform 0.2s;">▼</span>
+                            </div>
+
+                            <div id="content-missing-{{ loop.index }}" class="collapsible-content">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                    <!-- Statistical Details -->
+                                    <div>
+                                        <h4 style="color: #475569; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.05em;">Statistical Observations</h4>
+                                        <ul style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+                                            <li>• Max Consecutive Missing Rows: <strong>{{ meta.consecutive_missing }}</strong></li>
+                                            {% if meta.is_temporal %}
+                                                <li>• Missing at Start of Timeline: <strong>{{ 'Yes' if meta.missing_at_start else 'No' }}</strong></li>
+                                                <li>• Missing at End of Timeline: <strong>{{ 'Yes' if meta.missing_at_end else 'No' }}</strong></li>
+                                            {% endif %}
+                                            {% for pattern in meta.category_patterns %}
+                                                <li style="color: #b45309;">• ⚠️ {{ pattern }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+
+                                    <!-- Business & Domain Interpretations -->
+                                    <div>
+                                        <h4 style="color: #475569; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.05em;">Possible Cause Interpretations</h4>
+                                        {% for cause in meta.causes %}
+                                            <div class="cause-card">
+                                                <div style="font-weight: 700; color: #1e1b4b; font-size: 0.9rem;">{{ cause.cause }}</div>
+                                                <p style="font-size: 0.85rem; color: #4b5563; margin-top: 4px;">{{ cause.explanation }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Action Configuration -->
+                                <div style="border-top: 1px solid #f1f5f9; margin-top: 15px; padding-top: 15px;">
+                                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;">
+                                        <div style="flex: 1; min-width: 250px;">
+                                            <label style="font-size: 0.85rem; font-weight: 700; color: #475569;">Recommended Action (Confidence: {{ meta.confidence_score }} | Risk: {{ meta.risk_level }})</label>
+                                            <select name="missing_action_{{ col }}" class="select-action" data-col="{{ col }}" data-type="missing">
+                                                <option value="keep_null" {% if meta.recommended_action == "Keep NULL" or meta.recommended_action == "Preserve NULL" or meta.recommended_action == "Keep Empty / Do Not Impute" %}selected{% endif %}>Keep NULL (Do Not Clean)</option>
+                                                {% if report.column_analysis|selectattr("name", "equalto", col)|map(attribute="is_numeric")|first %}
+                                                    <option value="median" {% if "Median" in meta.recommended_action %}selected{% endif %}>Impute Median (Recommended for Numeric)</option>
+                                                    <option value="mean" {% if "Mean" in meta.recommended_action %}selected{% endif %}>Impute Mean</option>
+                                                {% else %}
+                                                    <option value="mode" {% if "Mode" in meta.recommended_action %}selected{% endif %}>Impute Mode (Recommended for Categorical)</option>
+                                                {% endif %}
+                                                <option value="ffill" {% if "Forward Fill" in meta.recommended_action or "ffill" in meta.recommended_action %}selected{% endif %}>Timeline Forward/Backward Fill</option>
+                                                <option value="na_string" {% if "N/A" in meta.recommended_action %}selected{% endif %}>Convert to "N/A" String</option>
+                                                <option value="indicator" {% if "Indicator" in meta.recommended_action %}selected{% endif %}>Create Missing Indicator Flag Feature</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="approve-check-label">
+                                                <input type="checkbox" name="approve_missing_{{ col }}" checked style="width: 16px; height: 16px;">
+                                                <span>Approve Action</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </section>
+
+            <!-- Outlier Analysis Section -->
+            <section class="card">
+                <h2>2. Outlier Analysis &amp; Handling</h2>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+                    Review numerical outliers detected simultaneously across multiple metrics (IQR, Z-Score, Modified Z-Score, Isolation Forest, and Percentile rules).
+                </p>
+
+                {% if not analysis.outlier_analysis %}
+                    <div style="padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-weight: 600; text-align: center;">
+                        🎉 No significant outliers detected in numeric fields!
+                    </div>
+                {% else %}
+                    {% for col, meta in analysis.outlier_analysis.items() %}
+                        <div style="margin-bottom: 15px;">
+                            <div class="collapsible-header" onclick="toggleCollapsible('outlier-{{ loop.index }}')">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="font-weight: 700; color: #0f172a; font-size: 1.05rem;">{{ col }}</span>
+                                    <span class="badge badge-orange">
+                                        {{ meta.outlier_count }} Outliers Detected ({{ "%.2f"|format(meta.outlier_percentage) }}%)
+                                    </span>
+                                </div>
+                                <span id="arrow-outlier-{{ loop.index }}" style="font-weight: bold; transition: transform 0.2s;">▼</span>
+                            </div>
+
+                            <div id="content-outlier-{{ loop.index }}" class="collapsible-content">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                    <!-- Outlier Details -->
+                                    <div>
+                                        <h4 style="color: #475569; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.05em;">Outlier Snippet</h4>
+                                        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; background: #fafafa;">
+                                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                                                <thead>
+                                                    <tr style="border-bottom: 1px solid #ddd; text-align: left;">
+                                                        <th style="padding: 4px;">Row</th>
+                                                        <th style="padding: 4px;">Value</th>
+                                                        <th style="padding: 4px;">Detected By</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for sample in meta.outlier_details %}
+                                                        <tr style="border-bottom: 1px solid #eee;">
+                                                            <td style="padding: 4px; color: #666;">#{{ sample.row_index }}</td>
+                                                            <td style="padding: 4px; font-weight: 600;">{{ sample.value }}</td>
+                                                            <td style="padding: 4px; font-size: 10px;"><span style="color: #1e40af; background: #e0f2fe; padding: 2px 4px; border-radius: 4px;">{{ sample.methods|join(", ") }}</span></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 10px;">
+                                            IQR Bounds: {{ "%.2f"|format(meta.iqr_bounds[0]) }} to {{ "%.2f"|format(meta.iqr_bounds[1]) }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Business Interpretations & Impact -->
+                                    <div>
+                                        <h4 style="color: #475569; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.05em;">Cause &amp; Business Impact</h4>
+                                        {% for cause in meta.causes %}
+                                            <div class="cause-card" style="border-left-color: #f59e0b;">
+                                                <div style="font-weight: 700; color: #7c2d12; font-size: 0.9rem;">{{ cause.cause }}</div>
+                                                <p style="font-size: 0.85rem; color: #4b5563; margin-top: 4px;">{{ cause.explanation }}</p>
+                                            </div>
+                                        {% endfor %}
+                                        <div style="margin-top: 10px; font-size: 0.85rem; padding: 10px; background: #fffbeb; border-radius: 6px; border-left: 3px solid #d97706; color: #92400e;">
+                                            <strong>Business Impact:</strong> {{ meta.business_impact }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Configuration -->
+                                <div style="border-top: 1px solid #f1f5f9; margin-top: 15px; padding-top: 15px;">
+                                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;">
+                                        <div style="flex: 1; min-width: 250px;">
+                                            <label style="font-size: 0.85rem; font-weight: 700; color: #475569;">Recommended Action (Confidence: {{ meta.confidence_score }} | Risk: {{ meta.risk_level }})</label>
+                                            <select name="outlier_action_{{ col }}" class="select-action" data-col="{{ col }}" data-type="outlier">
+                                                <option value="keep" {% if "Keep" in meta.recommended_action %}selected{% endif %}>Keep Outliers (Valid Domain Variance)</option>
+                                                <option value="remove" {% if "Correct or Remove" in meta.recommended_action or "Remove" in meta.recommended_action %}selected{% endif %}>Remove Outliers (Drop Rows)</option>
+                                                <option value="cap" {% if "Standardize" in meta.recommended_action %}selected{% endif %}>Cap / Winsorize (Clamp to IQR Bounds)</option>
+                                                <option value="nullify">Nullify (Convert Outliers to NaN for separate treatment)</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="approve-check-label" style="background: #fff7ed; border-color: #fed7aa;">
+                                                <input type="checkbox" name="approve_outlier_{{ col }}" checked style="width: 16px; height: 16px;">
+                                                <span>Approve Action</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </section>
+
+            <!-- Submit Action -->
+            <div style="text-align: center; margin-top: 35px; margin-bottom: 50px;">
+                <button type="button" id="execute-cleaning-btn" class="btn" style="background: linear-gradient(135deg, #4f46e5, #3730a3); font-weight: 700; padding: 18px 45px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); border: none; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                    🧠 Execute Tailored Data Cleaning
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #991b1b; display: flex; align-items: center; gap: 8px; font-size: 1.3rem;">
+                ⚠️ High Risk Action Confirmation
+            </h3>
+            <p id="modal-warning-text" style="color: #475569; margin-top: 14px; font-size: 0.95rem; line-height: 1.6;">
+                You have approved outlier removal or a critical column deletion. This will permanently delete records from your dataset and may distort downstream analyses.
+            </p>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="btn btn-secondary" style="border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer;">Cancel</button>
+                <button id="modal-proceed-btn" class="btn" style="background: #dc2626; border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; color: white;">Proceed with Cleaning</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize template data at script start to avoid Jinja2 rendering issues
+        var DUPLICATE_COUNT = parseInt("{{ report.duplicate_records_count | default(0) }}") || 0;
+
+        function toggleCollapsible(id) {
+            var content = document.getElementById("content-" + id);
+            var arrow = document.getElementById("arrow-" + id);
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "block";
+                arrow.style.transform = "rotate(180deg)";
+            } else {
+                content.style.display = "none";
+                arrow.style.transform = "rotate(0deg)";
+            }
+        }
+
+        // Initialize all as collapsed except the first missing and outlier items
+        document.addEventListener("DOMContentLoaded", function() {
+            var colls = document.querySelectorAll(".collapsible-content");
+            colls.forEach(function(content, idx) {
+                // Keep the first elements open by default
+                var id = content.id.replace("content-", "");
+                if (id !== "missing-1" && id !== "outlier-1") {
+                    content.style.display = "none";
+                } else {
+                    document.getElementById("arrow-" + id).style.transform = "rotate(180deg)";
+                }
+            });
+            
+            // Add event listeners for CSP compliance
+            var executeBtn = document.getElementById("execute-cleaning-btn");
+            if (executeBtn) {
+                executeBtn.addEventListener("click", function() {
+                    validateAndSubmit();
+                });
+            }
+            
+            var cancelBtn = document.getElementById("modal-cancel-btn");
+            if (cancelBtn) {
+                cancelBtn.addEventListener("click", function() {
+                    closeModal();
+                });
+            }
+            
+            var proceedBtn = document.getElementById("modal-proceed-btn");
+            if (proceedBtn) {
+                proceedBtn.addEventListener("click", function() {
+                    submitForm();
+                });
+            }
+        });
+
+        function validateAndSubmit() {
+            try {
+                var needsWarning = false;
+                var warningReasons = [];
+
+                // Check if any outlier removal is approved
+                var outlierSelects = document.querySelectorAll('select[name^="outlier_action_"]');
+                outlierSelects.forEach(function(select) {
+                    var col = select.getAttribute("data-col");
+                    var checkbox = document.querySelector('input[name="approve_outlier_' + col + '"]');
+                    if (checkbox && checkbox.checked && select.value === "remove") {
+                        needsWarning = true;
+                        warningReasons.push("• Deleting rows containing outliers in '" + col + "'");
+                    }
+                });
+
+                // Warn if duplicate count is high and checked
+                var removeDups = document.querySelector('input[name="remove_duplicates"]');
+                if (removeDups && removeDups.checked && DUPLICATE_COUNT > 100) {
+                    needsWarning = true;
+                    warningReasons.push("• Removing a large volume of duplicate records (" + DUPLICATE_COUNT + ")");
+                }
+
+                if (needsWarning) {
+                    var text = "You have approved the following irreversible operations:<br><br>" + 
+                               warningReasons.join("<br>") + 
+                               "<br><br>Do you want to proceed and run the cleaning agent?";
+                    document.getElementById("modal-warning-text").innerHTML = text;
+                    document.getElementById("confirm-modal").style.display = "flex";
+                } else {
+                    submitForm();
+                }
+            } catch (e) {
+                console.error("Error in validateAndSubmit:", e);
+                // If there's any error, just submit the form anyway
+                submitForm();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("confirm-modal").style.display = "none";
+        }
+
+        function submitForm() {
+            try {
+                document.getElementById("confirm-modal").style.display = "none";
+                var form = document.getElementById("cleaning-agent-form");
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error("Form not found: cleaning-agent-form");
+                }
+            } catch (e) {
+                console.error("Error in submitForm:", e);
+            }
+        }
+    </script>
+</body>
+</html>

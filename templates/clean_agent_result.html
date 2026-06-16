@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightAI - AI Cleaning Agent Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .agent-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a5f 100%);
+            border-radius: 20px;
+            padding: 45px 35px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .agent-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 60% 40%, rgba(99,102,241,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .agent-hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            animation: fadeInUp 0.6s ease both;
+        }
+        .agent-hero p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .score-compare-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin: 25px 0;
+        }
+        .score-box {
+            padding: 28px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .score-box-before {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .score-box-after {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #bbf7d0;
+        }
+        .score-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+        .score-num {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .score-num-before { color: #64748b; }
+        .score-num-after { color: #16a34a; }
+        .score-arrow {
+            font-size: 2.5rem;
+            color: #22c55e;
+            text-align: center;
+        }
+        .score-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .quick-stat {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .quick-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .quick-stat-icon { font-size: 2rem; margin-bottom: 8px; }
+        .quick-stat-num { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+        .quick-stat-label { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-top: 4px; }
+
+        .audit-log-container {
+            max-height: 420px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #0f172a;
+            padding: 20px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+        .audit-log-container::-webkit-scrollbar { width: 6px; }
+        .audit-log-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .audit-log-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            line-height: 1.5;
+        }
+        .audit-approved { color: #4ade80; }
+        .audit-skipped { color: #94a3b8; }
+        .audit-index {
+            color: #475569;
+            font-size: 0.75rem;
+            margin-right: 10px;
+            min-width: 28px;
+            display: inline-block;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .btn-download {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+        }
+        .btn-audit {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .btn-recommend {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            box-shadow: 0 4px 15px rgba(14,165,233,0.3);
+        }
+        .btn-home {
+            background: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            .score-compare-grid { grid-template-columns: 1fr; }
+            .score-arrow { transform: rotate(90deg); }
+            .agent-hero h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Hero Banner -->
+    <div class="agent-hero">
+        <h1>✅ Tailored Cleaning Complete</h1>
+        <p>Your approved cleaning pipeline has been executed. Review the audit trail below.</p>
+    </div>
+
+    <!-- Quality Score Comparison -->
+    <section class="card">
+        <h2>Data Quality Score Improvement</h2>
+        <div class="score-compare-grid">
+            <div class="score-box score-box-before">
+                <div class="score-label">Before Cleaning</div>
+                <div class="score-num score-num-before">{{ original_score }}</div>
+                <div class="score-sub">/ 100</div>
+            </div>
+            <div class="score-arrow">→</div>
+            <div class="score-box score-box-after">
+                <div class="score-label">After Cleaning</div>
+                <div class="score-num score-num-after">{{ cleaned_score }}</div>
+                <div class="score-sub">/ 100</div>
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <div class="quick-stat-icon">📋</div>
+                <div class="quick-stat-num">{{ rows_before }}</div>
+                <div class="quick-stat-label">Rows Before</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">✂️</div>
+                <div class="quick-stat-num">{{ rows_after }}</div>
+                <div class="quick-stat-label">Rows After</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">📝</div>
+                <div class="quick-stat-num">{{ audit_log | length }}</div>
+                <div class="quick-stat-label">Audit Entries</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">🛡️</div>
+                <div class="quick-stat-num">{{ audit_log | selectattr('0', 'equalto', '[') | list | length }}</div>
+                <div class="quick-stat-label">Total Actions Logged</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audit Log -->
+    <section class="card">
+        <h2>📜 Complete Audit Trail</h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 16px;">
+            Every decision — approved or declined — has been captured below to preserve full data governance traceability.
+        </p>
+        <div class="audit-log-container">
+            {% for entry in audit_log %}
+                <div class="audit-log-entry {% if '[APPROVED]' in entry %}audit-approved{% else %}audit-skipped{% endif %}">
+                    <span class="audit-index">{{ loop.index }}.</span>{{ entry }}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Risks of Automatic Cleaning -->
+    <section class="card">
+        <h2>⚠️ Why User-Confirmed Cleaning Matters</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 10px;">
+            {% set risks = [
+                ("🚫 Never Auto-Delete", "Automatic row/column removal can silently destroy rare events like pandemics or fraud incidents that are critical for model training."),
+                ("📊 Outliers Have Value", "Statistical outliers often represent VIP customers, top salespeople, or seasonal spikes. Removing them blindly distorts KPIs."),
+                ("❓ Missing ≠ Error", "Blank fields may be intentional (optional survey fields), compliance-redacted (GDPR), or predictive (missingness correlates with churn)."),
+                ("🔒 Audit = Governance", "Every change is logged to create a transparent paper trail for data governance, audits, and model reproducibility.")
+            ] %}
+            {% for title, desc in risks %}
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 10px; padding: 16px;">
+                    <div style="font-weight: 700; color: #1e1b4b; margin-bottom: 6px;">{{ title }}</div>
+                    <p style="font-size: 0.87rem; color: #475569; line-height: 1.5;">{{ desc }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/download/{{ cleaned_filename }}" class="action-btn btn-download">
+            📥 Download Cleaned Dataset
+        </a>
+        <a href="/download-audit/{{ audit_log_filename }}" class="action-btn btn-audit">
+            📜 Download Audit Log
+        </a>
+        <a href="/recommendations/{{ cleaned_filename }}" class="action-btn btn-recommend">
+            📊 Dashboard Suggestions
+        </a>
+        <a href="/" class="action-btn btn-home">
+            ⬅ Upload Another Dataset
+        </a>
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

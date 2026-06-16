@@ -42,6 +42,10 @@ def create_app(config_name="default"):
         'default-src': [
             '\'self\'',
         ],
+        'script-src': [
+            '\'self\'',
+            '\'unsafe-inline\'',  # Allow inline scripts for development
+        ],
         'style-src': [
             '\'self\'',
             '\'unsafe-inline\'', # Allowed for simple internal styles if needed
