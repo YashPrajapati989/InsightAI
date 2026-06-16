@@ -10,6 +10,15 @@ InsightAI is an AI-powered web application that helps users analyze datasets, ev
 
 ## ✅ Current Features
 
+### 💬 Chat with Your Data (Phase 6)
+
+* Natural language querying of uploaded datasets
+* Automatic SQL/Pandas query generation and execution
+* Dynamic generation of Bar, Line, and Pie charts from text
+* Formatted data tables with pagination for large outputs
+* Persistent AI conversational memory
+* "Show your work" query execution explanations
+
 ### 📖 AI Business Storytelling (Phase 5)
 
 * Executive Summary Generation
@@ -125,11 +134,12 @@ For numeric columns:
 * Executive Summary Generation
 * Automated Business Insights
 
-## 🔜 Phase 6
+## ✅ Phase 6 — Completed
 
 * Chat with Your Data
 * Natural Language Querying
 * AI Data Assistant
+* Dynamic Chart and Table Generation
 
 ---
 
@@ -180,6 +190,7 @@ InsightAI/
 │   ├── cleaned_result.html
 │   ├── recommendations.html
 │   ├── storytelling.html
+│   ├── chat.html
 │   └── errors/
 │       ├── 400.html
 │       ├── 404.html
@@ -190,7 +201,8 @@ InsightAI/
     ├── analyzer.py
     ├── cleaner.py
     ├── dashboard_recommender.py
-    └── storytelling.py
+    ├── storytelling.py
+    └── chat_engine.py
 ```
 
 ---

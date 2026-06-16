@@ -237,7 +237,8 @@
             <!-- Export Buttons -->
             <div class="action-buttons">
                 <button id="btn-copy" class="btn btn-outline" style="font-size: 1rem; padding: 12px 24px;">📝 Copy Story</button>
-                <button id="btn-print" class="btn" style="font-size: 1rem; padding: 12px 24px;">📄 Download Story Report</button>
+                <button id="btn-print" class="btn btn-outline" style="font-size: 1rem; padding: 12px 24px;">📄 Download Story</button>
+                <a href="{{ url_for('upload.chat_ui', file_id=file_id) }}" class="btn" style="font-size: 1rem; padding: 12px 24px; background: linear-gradient(135deg, #4f46e5, #3b82f6);">💬 Chat with Your Data ➡</a>
             </div>
             
             <div style="text-align: center; margin-top: 20px;">

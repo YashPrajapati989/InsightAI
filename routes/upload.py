@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for, send_from_directory
+from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 from services.file_service import save_upload_securely, cleanup_file
 from services.dataset_service import load_dataset, DatasetError
@@ -7,6 +7,7 @@ from utils.analyzer import DataProfiler
 from utils.cleaner import DataCleaner
 from utils.dashboard_recommender import DashboardRecommender
 from utils.storytelling import BusinessStoryGenerator
+from utils.chat_engine import ChatEngine
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -205,3 +206,61 @@ def storytelling(file_id):
         current_app.logger.error(f"Error generating business storytelling for {file_id}: {e}")
         flash("An error occurred while generating the business story.", "error")
         return redirect(url_for('main.home'))
+
+@upload_bp.route("/chat/<file_id>", methods=["GET"])
+def chat_ui(file_id):
+    """Render the AI Data Assistant chat interface."""
+    file_id = secure_filename(file_id)
+    
+    # Check uploads directory (raw dataset)
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_id)
+    
+    # Check cleaned_files directory (cleaned dataset)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(current_app.config['CLEANED_FOLDER'], file_id)
+        
+    if not os.path.exists(filepath):
+        flash("The dataset file could not be found or has expired. Please upload again.", "error")
+        return redirect(url_for('main.home'))
+        
+    # We only render the UI here. The JS will call the API.
+    return render_template("chat.html", file_id=file_id)
+
+@upload_bp.route("/api/chat", methods=["POST"])
+def api_chat():
+    """Handle chat requests via JSON AJAX."""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON payload provided"}), 400
+        
+    file_id = data.get("file_id")
+    question = data.get("question")
+    history = data.get("history", [])
+    
+    if not file_id or not question:
+        return jsonify({"error": "Missing file_id or question"}), 400
+        
+    file_id = secure_filename(file_id)
+    
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_id)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(current_app.config['CLEANED_FOLDER'], file_id)
+        
+    if not os.path.exists(filepath):
+        return jsonify({"error": "Dataset expired or not found"}), 404
+        
+    try:
+        df = load_dataset(filepath)
+        engine = ChatEngine(df)
+        
+        # Determine if we should enforce security limits
+        if len(question) > 500:
+            return jsonify({"error": "Question too long"}), 400
+            
+        result = engine.generate_answer(question, context=history)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        current_app.logger.error(f"Chat API error: {e}")
+        return jsonify({"error": "Internal server error"}), 500

@@ -45,7 +45,14 @@ def create_app(config_name="default"):
         'style-src': [
             '\'self\'',
             '\'unsafe-inline\'', # Allowed for simple internal styles if needed
-        ]
+        ],
+        'img-src': [
+            '\'self\'',
+            'data:',  # Allow base64 chart images from ChatEngine
+        ],
+        'connect-src': [
+            '\'self\'',  # Allow fetch/XHR to same origin (e.g. /api/chat)
+        ],
     }
     talisman.init_app(app, force_https=force_https, content_security_policy=csp)
     
