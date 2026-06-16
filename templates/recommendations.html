@@ -634,13 +634,15 @@
         </section>
     </div>
 
-    <!-- Back Button -->
-    <div class="button-container" style="margin-bottom:50px;">
+    <!-- Action Buttons -->
+    <div class="button-container" style="margin-bottom:50px; display: flex; gap: 16px; justify-content: center;">
         <a href="/" class="btn" style="background:#374151;">⬅ Upload / Load Another Dataset</a>
+        <a href="{{ url_for('upload.storytelling', file_id=file_id) }}" class="btn" style="background: linear-gradient(135deg, #10b981, #059669);">📖 Generate Business Story ➡</a>
     </div>
 
 </div>
 
 <script src="{{ url_for('static', filename='js/recommendations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

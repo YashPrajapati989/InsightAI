@@ -10,6 +10,16 @@ InsightAI is an AI-powered web application that helps users analyze datasets, ev
 
 ## ✅ Current Features
 
+### 📖 AI Business Storytelling (Phase 5)
+
+* Executive Summary Generation
+* KPI Interpretation and Context
+* Visualization Storytelling & Narrative
+* Automated Business Insights Generation
+* Key Findings Extraction
+* Data Risks & Recommendations
+* Exportable Business Reports
+
 ### 📊 AI Dashboard Recommendations (Phase 4)
 
 * Automatic column type analysis (Date, Numeric, Categorical, Boolean, Identifier)
@@ -109,7 +119,7 @@ For numeric columns:
 * Power BI Dashboard Suggestions
 * Tableau Visualization Templates
 
-## 🔜 Phase 5
+## ✅ Phase 5 — Completed
 
 * AI Business Storytelling
 * Executive Summary Generation
@@ -169,6 +179,7 @@ InsightAI/
 │   ├── result.html
 │   ├── cleaned_result.html
 │   ├── recommendations.html
+│   ├── storytelling.html
 │   └── errors/
 │       ├── 400.html
 │       ├── 404.html
@@ -178,7 +189,8 @@ InsightAI/
 └── utils/
     ├── analyzer.py
     ├── cleaner.py
-    └── dashboard_recommender.py
+    ├── dashboard_recommender.py
+    └── storytelling.py
 ```
 
 ---

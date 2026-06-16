@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InsightAI - Business Storytelling</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 40px 50px;
+            color: #1e293b;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .report-header h1 {
+            font-size: 2.2rem;
+            color: #0f172a;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+        .report-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        .report-section {
+            margin-bottom: 36px;
+        }
+        .report-section h2 {
+            font-size: 1.4rem;
+            color: #1e1b4b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-left: 5px solid #3b82f6;
+            padding: 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #334155;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .story-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .story-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .story-title {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        .story-text {
+            color: #475569;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .bullet-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            color: #334155;
+        }
+        .bullet-list li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #6366f1;
+            font-size: 1.2rem;
+        }
+        .finding-list li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+        }
+        .risk-card {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .risk-label {
+            color: #b91c1c;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .rec-label {
+            color: #047857;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 12px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .btn-outline:hover {
+            background: #eff6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+        <div class="report-container" id="story-report">
+            <div class="report-header">
+                <h1>📖 AI Business Storytelling Report</h1>
+                <p>Executive narrative generated from your dataset</p>
+            </div>
+
+            <!-- Executive Summary -->
+            <div class="report-section">
+                <h2>Executive Summary</h2>
+                <div class="summary-card">
+                    {{ story_report.summary }}
+                </div>
+            </div>
+
+            <!-- KPI Interpretation -->
+            <div class="report-section">
+                <h2>📈 KPI Interpretation</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    {% for story in story_report.kpi_stories %}
+                    <div class="story-item">
+                        <div class="story-title">{{ story.kpi_name }}</div>
+                        <div class="story-text">{{ story.interpretation }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Visualization Storytelling -->
+            <div class="report-section">
+                <h2>📊 Visualization Storytelling</h2>
+                {% for story in story_report.chart_stories %}
+                <div class="story-item" style="border-left: 4px solid #8b5cf6;">
+                    <div class="story-title">{{ story.chart_name }}</div>
+                    <div class="story-text" style="margin-bottom: 8px;"><strong>Purpose:</strong> {{ story.business_purpose }}</div>
+                    <div class="story-text">{{ story.story_description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Key Findings -->
+                <div class="report-section">
+                    <h2>🔍 Key Findings</h2>
+                    <ul class="bullet-list finding-list">
+                        {% for finding in story_report.findings %}
+                        <li>{{ finding.replace('✓ ', '') }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Business Insights -->
+                <div class="report-section">
+                    <h2>💡 Business Insights</h2>
+                    <ul class="bullet-list">
+                        {% for insight in story_report.insights %}
+                        <li>{{ insight }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Risks & Recommendations -->
+            <div class="report-section">
+                <h2>⚠️ Risks &amp; Recommendations</h2>
+                {% for item in story_report.recommendations %}
+                <div class="risk-card">
+                    <div class="risk-label">Risk Detected</div>
+                    <div class="story-text">{{ item.risk }}</div>
+                    <div class="rec-label">Strategic Recommendation</div>
+                    <div class="story-text">{{ item.recommendation }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Suggested Next Steps -->
+            <div class="report-section">
+                <h2>🎯 Suggested Next Steps</h2>
+                <div class="summary-card" style="border-left-color: #10b981; background: linear-gradient(135deg, #f0fdf4, #f8fafc);">
+                    <ul class="bullet-list finding-list" style="margin-bottom: 0;">
+                        <li>Review the Risks & Recommendations with your data engineering team.</li>
+                        <li>Deploy the recommended Dashboard wireframes in your BI tool of choice (Power BI, Tableau).</li>
+                        <li>Monitor the top KPIs regularly to track performance shifts over time.</li>
+                        <li>Perform a deep-dive analysis on the highlighted business segments to validate the generated insights.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="action-buttons">
+                <button id="btn-copy" class="btn btn-outline" style="font-size: 1rem; padding: 12px 24px;">📝 Copy Story</button>
+                <button id="btn-print" class="btn" style="font-size: 1rem; padding: 12px 24px;">📄 Download Story Report</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{{ url_for('upload.recommendations', file_id=file_id) }}" style="color: #64748b; text-decoration: none; font-size: 0.9rem;">⬅ Back to Dashboard Recommendations</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/storytelling.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

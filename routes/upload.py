@@ -6,6 +6,7 @@ from services.dataset_service import load_dataset, DatasetError
 from utils.analyzer import DataProfiler
 from utils.cleaner import DataCleaner
 from utils.dashboard_recommender import DashboardRecommender
+from utils.storytelling import BusinessStoryGenerator
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -159,4 +160,48 @@ def recommendations(file_id):
     except Exception as e:
         current_app.logger.error(f"Error generating dashboard recommendations for {file_id}: {e}")
         flash("An error occurred while analyzing the dataset for recommendations.", "error")
+        return redirect(url_for('main.home'))
+
+@upload_bp.route("/storytelling/<file_id>", methods=["GET"])
+def storytelling(file_id):
+    """Generate and display the Business Storytelling Report."""
+    file_id = secure_filename(file_id)
+    
+    # Check uploads directory (raw dataset)
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_id)
+    
+    # Check cleaned_files directory (cleaned dataset)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(current_app.config['CLEANED_FOLDER'], file_id)
+        
+    if not os.path.exists(filepath):
+        flash("The dataset file could not be found or has expired. Please upload again.", "error")
+        return redirect(url_for('main.home'))
+        
+    try:
+        # Load dataset
+        df = load_dataset(filepath)
+        
+        # Generate context for storytelling
+        report = DataProfiler(df).profile()
+        rec_data = DashboardRecommender(df).recommend()
+        
+        # Retrieve original score from session/args if possible, but for simplicity we rely on current score
+        # as it is the current state of the dataset
+        original_score = request.args.get("original_score", type=int, default=None)
+        
+        # Initialize storytelling generator
+        generator = BusinessStoryGenerator(df, report, rec_data, original_score=original_score)
+        story_report = generator.generate_report()
+        
+        current_app.logger.info(f"Generated business storytelling report for file: {file_id}")
+        
+        return render_template(
+            "storytelling.html",
+            story_report=story_report,
+            file_id=file_id
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error generating business storytelling for {file_id}: {e}")
+        flash("An error occurred while generating the business story.", "error")
         return redirect(url_for('main.home'))
