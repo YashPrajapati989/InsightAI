@@ -143,6 +143,23 @@
         .btn-outline:hover {
             background: #eff6ff;
         }
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 20px 15px;
+            }
+            .storytelling-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-buttons .btn, .action-buttons button {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
+        }
     </style>
 </head>
 <body>
@@ -186,7 +203,7 @@
                 {% endfor %}
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div class="storytelling-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 <!-- Key Findings -->
                 <div class="report-section">
                     <h2>🔍 Key Findings</h2>
